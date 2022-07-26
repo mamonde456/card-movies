@@ -1,25 +1,45 @@
-import "./db";
-import User from "../models/User";
 import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import session from "express-session";
+import { localsMiddlewaer } from "./middleware";
+import MongoStore from "connect-mongo";
+import User from "../models/User";
+import fetch from "cross-fetch";
+import jwt from "jsonwebtoken";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(
   session({
-    secret: "mamonde456",
-    resave: true,
-    saveUninitialized: true,
+    secret: process.env.DB_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.DB_URL,
+    }),
   })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(localsMiddlewaer);
 
+//토큰 로그인
+const token = jwt.sign(
+  { foo: "bar" },
+  "secret-key",
+  { expiresIn: "7d" },
+  (err, token) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(token);
+  }
+);
+//app 라우터로 리팩토링
 app.get("/api/join", (req, res) => {
   return res.send(`${User.find({})}`);
 });
@@ -56,27 +76,24 @@ app.post("/api/login", async (req, res) => {
 
   const user = await User.findOne({ username });
   if (!user) {
-    console.log("noting found.");
+    return res.send({ errorMessage: "nothing found." });
   }
   const ok = await bcrypt.compare(password, user.password);
 
   if (!ok) {
-    console.log("wrong password");
+    return res.send({ errorMessage: "wrong password" });
   }
+
   req.session.loggedIn = true;
   req.session.user = user;
-  const session = req.session;
-  console.log(session);
 
-  return res.redirect("/");
+  return res.send(res.locals);
 });
 
-// app.use("/", express.static(path.join(__dirname, "../client/build")));
+app.post("/api/logout", (req, res) => {
+  if (req.body.loggedIn === false) {
+    req.session.destroy();
+  }
+});
 
-// app.get("/", (req, res) =>
-//   res.sendFile(path.join(__dirname, "../client/build/index.html"))
-// );
-
-app.listen(PORT, () =>
-  console.log(`server to listening http://localhost:${PORT}`)
-);
+export default app;

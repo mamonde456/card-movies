@@ -7,6 +7,8 @@ import MongoStore from "connect-mongo";
 import User from "../models/User";
 import fetch from "cross-fetch";
 import jwt from "jsonwebtoken";
+import userRouter from "./routes/userRouter";
+import movieRouter from "./routes/movieRouter";
 
 const app = express();
 
@@ -26,74 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(localsMiddlewaer);
 
-//토큰 로그인
-const token = jwt.sign(
-  { foo: "bar" },
-  "secret-key",
-  { expiresIn: "7d" },
-  (err, token) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log(token);
-  }
-);
 //app 라우터로 리팩토링
-app.get("/api/join", (req, res) => {
-  return res.send(`${User.find({})}`);
-});
-app.post("/api/join", async (req, res) => {
-  const {
-    body: {
-      user: { username, name, email, password, password2 },
-    },
-  } = req;
-
-  if (password !== password2) {
-    return res.end();
-  }
-  const exists = await User.exists({ username });
-  if (exists) {
-    console.log("no");
-    return res.end();
-  }
-  await User.create({
-    username,
-    name,
-    email,
-    password,
-  });
-  return res.send(User);
-});
-
-app.post("/api/login", async (req, res) => {
-  const {
-    body: {
-      user: { username, password },
-    },
-  } = req;
-
-  const user = await User.findOne({ username });
-  if (!user) {
-    return res.send({ errorMessage: "nothing found." });
-  }
-  const ok = await bcrypt.compare(password, user.password);
-
-  if (!ok) {
-    return res.send({ errorMessage: "wrong password" });
-  }
-
-  req.session.loggedIn = true;
-  req.session.user = user;
-
-  return res.send(res.locals);
-});
-
-app.post("/api/logout", (req, res) => {
-  if (req.body.loggedIn === false) {
-    req.session.destroy();
-  }
-});
+app.use("/api/users", userRouter);
+app.use("/api/movies", movieRouter);
 
 export default app;

@@ -10,7 +10,6 @@ movieRouter.post("/upload", async (req, res) => {
       genres,
     },
   } = req;
-  console.log(title, description, adult, genres);
   const isAdult = adult ? true : false;
   try {
     await Movie.create({
@@ -23,17 +22,12 @@ movieRouter.post("/upload", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
-  const movie = await Movie.find({});
-  //   await await fetch("http://localhost:3000", {
-  //     method: "post",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       movie,
-  //     }),
-  //   });
-  return res.send(Movie);
+  return res.redirect("/home");
+});
+
+movieRouter.get("/home", async (req, res) => {
+  const movies = await Movie.find({});
+  return res.send(movies);
 });
 
 export default movieRouter;

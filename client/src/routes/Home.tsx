@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import { atomMovieDB } from "../atom";
 
 interface I {
@@ -17,7 +17,7 @@ const Home = () => {
   const [movieDB, setMovieDB] = useRecoilState(atomMovieDB);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/movies/home", {
+    fetch("http://localhost:5000/api/home", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -36,6 +36,9 @@ const Home = () => {
               state={{
                 title: movie.title,
                 id: movie._id,
+                description: movie.description,
+                adult: movie.adult,
+                rating: movie.meta.rating,
               }}
             >
               {movie.title}

@@ -27,9 +27,9 @@ const Join = () => {
 
     console.log(user);
   };
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = fetch("http://localhost:5000/api/users/join", {
+    await fetch("http://localhost:5000/api/users/join", {
       method: "post",
       headers: {
         "Content-Type": "application/json",

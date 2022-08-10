@@ -1,14 +1,14 @@
-import express from "express";
 import User from "../../models/User";
+import bcrypt from "bcrypt";
 
-const userRouter = express.Router();
-
-userRouter.post("/join", async (req, res) => {
+export const join = async (req, res) => {
   const {
     body: {
       user: { username, name, email, password, password2 },
     },
   } = req;
+
+  console.log(username, name, email, password, password2);
 
   if (password !== password2) {
     return res.end();
@@ -25,9 +25,9 @@ userRouter.post("/join", async (req, res) => {
     password,
   });
   return res.send(User);
-});
+};
 
-userRouter.post("/login", async (req, res) => {
+export const login = async (req, res) => {
   const {
     body: {
       user: { username, password },
@@ -48,12 +48,10 @@ userRouter.post("/login", async (req, res) => {
   req.session.user = user;
 
   return res.send(res.locals);
-});
+};
 
-userRouter.post("/api/logout", (req, res) => {
+export const logout = (req, res) => {
   if (req.body.loggedIn === false) {
     req.session.destroy();
   }
-});
-
-export default userRouter;
+};

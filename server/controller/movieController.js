@@ -1,15 +1,18 @@
-import express from "express";
 import Movie from "../../models/Movie";
 
-const movieRouter = express.Router();
+export const home = async (req, res) => {
+  const movies = await Movie.find({});
+  return res.send(movies);
+};
 
-movieRouter.post("/upload", async (req, res) => {
+export const upload = async (req, res) => {
   const {
     body: {
       movie: { title, description, adult },
-      genres,
+      genres: { id, value },
     },
   } = req;
+  console.log(genres);
   const isAdult = adult ? true : false;
   try {
     await Movie.create({
@@ -23,11 +26,8 @@ movieRouter.post("/upload", async (req, res) => {
     console.log(err);
   }
   return res.redirect("/home");
-});
+};
 
-movieRouter.get("/home", async (req, res) => {
-  const movies = await Movie.find({});
-  return res.send(movies);
-});
-
-export default movieRouter;
+export const editMovie = (req, res) => {
+  // const {body}=req
+};

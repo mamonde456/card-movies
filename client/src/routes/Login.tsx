@@ -20,7 +20,7 @@ const Login = () => {
   // login userInfo post
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    fetch("http://localhost:5000/api/users/login", {
+    await fetch("http://localhost:5000/api/users/login", {
       method: "post",
       credentials: "include",
       headers: {

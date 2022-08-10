@@ -1,13 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { loggedInState } from "../atom";
+import { loggedInState, loggedInUser } from "../atom";
+
+interface ILoginUser {
+  username: string;
+  name: string;
+  email: string;
+  _id: string;
+  password: string;
+}
 
 const LogOut = styled.p``;
 
 const Header = () => {
   const [isLogin, setIsLogin] = useRecoilState(loggedInState);
+  const [isLoginUser, setIsLoginUser] = useState<ILoginUser>(
+    JSON.parse(sessionStorage.getItem("user") || "{}")
+  );
   let navigate = useNavigate();
   useEffect(() => {
     setIsLogin(isLogin);
@@ -17,6 +28,7 @@ const Header = () => {
       sessionStorage.removeItem("loggedIn");
       setIsLogin(false);
     }
+
     const data = await (
       await fetch("http://localhost:5000/api/users/logout", {
         method: "post",
@@ -39,7 +51,7 @@ const Header = () => {
         {isLogin ? (
           <>
             <LogOut onClick={onLogOut}>log out</LogOut>
-            <Link to="/profile">profile</Link>
+            <Link to="/profile">{isLoginUser.username} profile</Link>
           </>
         ) : (
           <>

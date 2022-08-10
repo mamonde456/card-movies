@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { atomMovieDB, categoryList } from "../atom";
 
 const Upload = () => {
-  const [genres, setGenres] = useRecoilState(categoryList) as any;
+  const category = useRecoilValue(categoryList) as any;
+  const [isChecked, setIsChecked] = useState(false);
+  const [isGenres, setIsGenres] = useState([]) as any;
+
   const [movie, setMovie] = useState({
     title: "",
     description: "",
     adult: false,
   }) as any;
-
   const onSubmit = async (e: any) => {
     e.preventDefault();
     const data = await (
@@ -20,7 +22,6 @@ const Upload = () => {
         },
         body: JSON.stringify({
           movie,
-          genres,
         }),
       })
     ).json();
@@ -35,15 +36,19 @@ const Upload = () => {
     });
   };
 
-  const onCheckedElement = (event: any) => {
-    const {
-      target: { checked, value },
-    } = event;
+  const onCheckedElement = ({ target }: any) => {
+    setIsChecked(!isChecked);
+    handleCheckedValue(target.parentNode, target.value, target.checked);
+  };
 
-    if (checked) {
-      setGenres([...genres, value]);
-    } else {
-      setGenres(genres.filter((el: any) => el !== value));
+  const handleCheckedValue = (el: any, value: any, isChecked: any) => {
+    if (isChecked) {
+      setIsGenres([...isGenres, value]);
+      el.style.backgroundColor = "black";
+    } else if (!isChecked && isGenres.find((el: any) => el === value)) {
+      const filter = isGenres.filter((el: any) => el !== value);
+      setIsGenres([...filter]);
+      el.style.backgroundColor = "white";
     }
   };
 
@@ -78,15 +83,15 @@ const Upload = () => {
           type="text"
         />
         <div>
-          {genres.map((item: any) => (
+          {category.map((item: any) => (
             <label key={item.id}>
               {item.data}
               <input
                 name={item.data}
                 value={item.data}
                 type="checkbox"
-                onChange={onCheckedElement}
-                defaultChecked={genres.includes(item.data) ? true : false}
+                onChange={(e) => onCheckedElement(e)}
+                // defaultChecked={isGenres.includes(item.data) ? true : false}
               />
             </label>
           ))}

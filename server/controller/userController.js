@@ -24,7 +24,7 @@ export const join = async (req, res) => {
     email,
     password,
   });
-  return res.send(User);
+  return res.sendStatus(200);
 };
 
 export const login = async (req, res) => {
@@ -54,4 +54,14 @@ export const logout = (req, res) => {
   if (req.body.loggedIn === false) {
     req.session.destroy();
   }
+};
+
+export const editProfile = (req, res) => {
+  const {
+    body: { username, name, email, location, info },
+    file,
+  } = req;
+
+  console.log(file, username, name, email, location, info);
+  res.end();
 };

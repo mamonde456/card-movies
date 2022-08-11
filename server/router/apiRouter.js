@@ -1,15 +1,23 @@
 import express from "express";
 import { editMovie, home, upload } from "../controller/movieController";
-import { join, login, logout } from "../controller/userController";
+import { editProfile, join, login, logout } from "../controller/userController";
+import { uploadsAvatar } from "../middleware";
 
 const apiRouter = express.Router();
 
-//User Router
+//Root Router
 apiRouter.post("/users/join", join);
 
 apiRouter.post("/users/login", login);
 
 apiRouter.post("/users/logout", logout);
+
+//User Router
+apiRouter.post(
+  "/users/edit-profile",
+  uploadsAvatar.single("avatar"),
+  editProfile
+);
 
 //Movie Router
 

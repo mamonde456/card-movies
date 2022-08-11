@@ -10,10 +10,50 @@ const Profile = () => {
     setUser(data);
   }, []);
 
+  const onSubmit = async (event: any) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append("file", event.target.file.files[0]);
+    await uploadFile(formData);
+
+    const {
+      target: { username, name, email, location, info },
+    } = event(async () => {
+      await fetch("http://localhost:5000/api/users/edit-profile", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          name,
+          email,
+          location,
+          info,
+        }),
+      });
+    })();
+  };
+
+  const uploadFile = async (file: any) => {
+    await fetch("http://localhost:5000/api/users/edit-profile", {
+      method: "post",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      body: file,
+    });
+  };
+
   return (
     <>
       <div>
-        <form>
+        <form encType="multipart/form-data" onSubmit={onSubmit}>
+          <label key={"avatar"}>
+            {" "}
+            upload file
+            <input id="avatar" name="avatar" type="file" accept="image/*" />
+          </label>
           <input
             placeholder="username"
             type="text"
@@ -32,6 +72,8 @@ const Profile = () => {
             name="email"
             defaultValue={user.email}
           />
+          <input placeholder="location" type="text" name="location" />
+          <textarea placeholder="Introduce me." name="info" />
           <button>save</button>
         </form>
       </div>

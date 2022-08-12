@@ -51,7 +51,7 @@ const Header = () => {
         {isLogin ? (
           <>
             <LogOut onClick={onLogOut}>log out</LogOut>
-            <Link to="/profile">{isLoginUser.username} profile</Link>
+            <Link to={isLoginUser._id}>{isLoginUser.username} profile</Link>
           </>
         ) : (
           <>

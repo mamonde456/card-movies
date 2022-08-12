@@ -8,8 +8,6 @@ export const join = async (req, res) => {
     },
   } = req;
 
-  console.log(username, name, email, password, password2);
-
   if (password !== password2) {
     return res.end();
   }
@@ -36,18 +34,17 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ username });
   if (!user) {
-    return res.send({ errorMessage: "nothing found." });
+    return res.status(400).send({ errorMessage: "user nothing found." });
   }
   const ok = await bcrypt.compare(password, user.password);
 
   if (!ok) {
-    return res.send({ errorMessage: "wrong password" });
+    return res.status(400).send({ errorMessage: "wrong password" });
   }
 
   req.session.loggedIn = true;
   req.session.user = user;
-
-  return res.send(res.locals);
+  return res.status(200).send(res.locals);
 };
 
 export const logout = (req, res) => {
@@ -56,12 +53,24 @@ export const logout = (req, res) => {
   }
 };
 
-export const editProfile = (req, res) => {
+export const editProfile = async (req, res) => {
   const {
-    body: { username, name, email, location, info },
+    body: { userId, username, name, email, location, info },
     file,
   } = req;
+  const user = await User.findById(userId);
+  const updateUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      avatarUrl: file ? file.path : user.avatarUrl,
+      username,
+      name,
+      email,
+      location,
+      info,
+    },
+    { new: true }
+  );
 
-  console.log(file, username, name, email, location, info);
-  res.end();
+  return res.status(200).send(updateUser);
 };

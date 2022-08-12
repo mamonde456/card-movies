@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 interface IUser {
   username: string;
   name: string;
@@ -15,7 +16,7 @@ const Join = () => {
     password: 0,
     password2: 0,
   });
-
+  let navigate = useNavigate();
   const onChange = (event: any) => {
     const {
       target: { name, value },
@@ -24,12 +25,10 @@ const Join = () => {
       ...user,
       [name]: value,
     });
-
-    console.log(user);
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await fetch("http://localhost:5000/api/users/join", {
+    const response = await fetch("http://localhost:5000/api/users/join", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -37,9 +36,13 @@ const Join = () => {
       body: JSON.stringify({
         user,
       }),
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data));
+    });
+    if (response.status === 200) {
+      navigate("/login");
+    } else if (response.status === 400) {
+      const data = await response.json();
+      console.log(data.errorMessage);
+    }
   };
 
   return (

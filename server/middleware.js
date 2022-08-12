@@ -8,7 +8,7 @@ export const localsMiddlewaer = (req, res, next) => {
 };
 
 export const uploadsAvatar = multer({
-  dest: "uploads/avatar",
+  dest: "uploads/avatars/",
   limits: {
     fileSize: 3000000,
   },

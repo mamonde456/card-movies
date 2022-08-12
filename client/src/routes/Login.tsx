@@ -20,7 +20,7 @@ const Login = () => {
   // login userInfo post
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await fetch("http://localhost:5000/api/users/login", {
+    const response = await fetch("http://localhost:5000/api/users/login", {
       method: "post",
       credentials: "include",
       headers: {
@@ -29,17 +29,16 @@ const Login = () => {
       body: JSON.stringify({
         user,
       }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.errorMessage) {
-        } else if (data.loggedInUser.username === user.username) {
-          sessionStorage.setItem("loggedIn", data.loggedIn);
-          sessionStorage.setItem("user", JSON.stringify(data.loggedInUser));
-          setIsLogin(true);
-        }
-      });
-    navigate("/");
+    });
+    const data = await response.json();
+    if (response.status === 200) {
+      sessionStorage.setItem("loggedIn", data.loggedIn);
+      sessionStorage.setItem("user", JSON.stringify(data.loggedInUser));
+      setIsLogin(true);
+      navigate("/");
+    } else if (response.status === 400) {
+      console.log(data.errorMessage);
+    }
   };
   const onChange = (e: any) => {
     const {

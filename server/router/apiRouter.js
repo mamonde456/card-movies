@@ -1,7 +1,7 @@
 import express from "express";
 import { editMovie, home, upload } from "../controller/movieController";
 import { editProfile, join, login, logout } from "../controller/userController";
-import { uploadsAvatar } from "../middleware";
+import { uploadsAvatar, uploadsMovies } from "../middleware";
 
 const apiRouter = express.Router();
 
@@ -23,7 +23,11 @@ apiRouter.post(
 
 apiRouter.get("/home", home);
 
-apiRouter.post("/movies/upload", upload);
+apiRouter.post(
+  "/movies/upload",
+  uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
+  upload
+);
 apiRouter.post("/movies/edit-movie", editMovie);
 
 export default apiRouter;

@@ -1,31 +1,35 @@
 import Movie from "../../models/Movie";
+import User from "../../models/User";
 
 export const home = async (req, res) => {
-  const movies = await Movie.find({});
+  const movies = await Movie.find({})
+    .sort({ createdAt: "desc" })
+    .populate("owner");
   return res.send(movies);
 };
 
 export const upload = async (req, res) => {
   const {
-    body: {
-      movie: { title, description, adult },
-      genres: { id, value },
-    },
+    body: { title, description, adult, genres, userId },
+    files,
   } = req;
-  console.log(genres);
+  const user = await User.findById(userId);
   const isAdult = adult ? true : false;
   try {
     await Movie.create({
+      thumbUrl: files.thumb[0].path,
+      movieUrl: files.movie[0].path,
       title,
       adult: isAdult,
       description,
       genres,
       createdAt: Date.now(),
+      owner: user,
     });
   } catch (err) {
-    console.log(err);
+    return res.status(400).send(err);
   }
-  return res.redirect("/home");
+  return res.sendStatus(200);
 };
 
 export const editMovie = (req, res) => {

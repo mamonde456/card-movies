@@ -6,6 +6,7 @@ import { atomMovieDB } from "../atom";
 
 interface LocationParams {
   state: {
+    movieUrl: string;
     title: string;
     id: string;
     description: string;
@@ -22,8 +23,8 @@ const Detail = () => {
 
   return (
     <>
-      <h1>Detail</h1>
-      <h3>{state?.title}</h3>
+      <h1>{state?.title}</h1>
+      <video src={state?.movieUrl} controls></video>
       <p>{state?.description}</p>
       <p>{state?.adult ? "청소년 관람 불가" : "청소년 관람 가능"}</p>
       <p>{state?.rating}</p>

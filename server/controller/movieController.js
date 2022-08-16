@@ -32,6 +32,15 @@ export const upload = async (req, res) => {
   return res.sendStatus(200);
 };
 
+export const watch = async (req, res) => {
+  const { movieId } = req.body;
+  const movie = await Movie.findById(movieId);
+  if (!movie) {
+    return res.status(400).send("noting found.");
+  }
+  return res.status(200).send(movie);
+};
+
 export const editMovie = (req, res) => {
   // const {body}=req
 };

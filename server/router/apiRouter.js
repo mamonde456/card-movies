@@ -1,5 +1,5 @@
 import express from "express";
-import { editMovie, home, upload } from "../controller/movieController";
+import { editMovie, home, upload, watch } from "../controller/movieController";
 import { editProfile, join, login, logout } from "../controller/userController";
 import { uploadsAvatar, uploadsMovies } from "../middleware";
 
@@ -23,6 +23,7 @@ apiRouter.post(
 
 apiRouter.get("/home", home);
 
+apiRouter.post("/movies/watch", watch);
 apiRouter.post(
   "/movies/upload",
   uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),

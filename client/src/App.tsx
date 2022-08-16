@@ -28,10 +28,11 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 @@ -51,26 +52,27 @@
-  border-spacing: 0;
+border-spacing: 0;
 }
 * {
   box-sizing: border-box;
+  list-style:none;
 }
 body {
   font-weight: 300;

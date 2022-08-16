@@ -15,6 +15,10 @@ import { makeImageFormat } from "../until";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
+const Wrapper = styled.div`
+  padding-top: 100px;
+`;
+
 const CardBox = styled.div`
   width: 1200px;
   padding: 10px;
@@ -71,7 +75,7 @@ const Image = styled.div<{ bgPhoto: string }>`
   position: absolute;
 `;
 
-const SectionTitle = styled.h3`
+const ContentsTitle = styled.h3`
   padding: 10px;
   font-size: 32px;
 `;
@@ -93,12 +97,14 @@ const Home = () => {
   const [isRotate, setIsRotate] = useState(false);
 
   return (
-    <>
+    <Wrapper>
       {userLoading ? (
         <h1>Loading...</h1>
       ) : (
         <>
-          <SectionTitle>User Movies</SectionTitle>
+          <Link to="/movies">
+            <ContentsTitle>User Movies</ContentsTitle>
+          </Link>
           <CardBox>
             {users?.map((movie: IUserMovies) => (
               <Card key={movie._id}>
@@ -144,7 +150,7 @@ const Home = () => {
               <p>dd</p>
             ) : (
               <CardBox>
-                <SectionTitle>Popular Movies</SectionTitle>
+                <ContentsTitle>Popular Movies</ContentsTitle>
                 {movies?.results.map((movie: Iresults) => (
                   <Link to={`movies/${movie.id}`}>
                     <Card
@@ -186,7 +192,7 @@ const Home = () => {
           </>
         </>
       )}
-    </>
+    </Wrapper>
   );
 };
 

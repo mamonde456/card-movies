@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
+import styled from "styled-components";
 import { atomMovieDB, categoryList, loggedInUser } from "../atom";
+
+const Wrapper = styled.div`
+  padding-top: 100px;
+  color: white;
+`;
 
 const Upload = () => {
   const category = useRecoilValue(categoryList) as any;
@@ -67,7 +73,7 @@ const Upload = () => {
   // };
 
   return (
-    <>
+    <Wrapper>
       <form encType="multipart/form-data" onSubmit={onSubmit}>
         <label key="thumb">
           thumbnail file upload
@@ -137,7 +143,7 @@ const Upload = () => {
         </div>
         <button>save</button>
       </form>
-    </>
+    </Wrapper>
   );
 };
 

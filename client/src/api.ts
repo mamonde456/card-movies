@@ -5,7 +5,7 @@ const APIKEY = process.env.REACT_APP_API_KEY;
 const APIBASEURL = "https://api.themoviedb.org/3";
 
 export interface IUserMovies {
-  thumbUrl: string;
+  thumbUrl: string | "";
   movieUrl: string;
   _id: string;
   title: string;

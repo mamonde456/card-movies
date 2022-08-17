@@ -1,6 +1,12 @@
 import express from "express";
 import { editMovie, home, upload, watch } from "../controller/movieController";
-import { editProfile, join, login, logout } from "../controller/userController";
+import {
+  editProfile,
+  join,
+  login,
+  logout,
+  postAvatar,
+} from "../controller/userController";
 import { uploadsAvatar, uploadsMovies } from "../middleware";
 
 const apiRouter = express.Router();
@@ -18,6 +24,7 @@ apiRouter.post(
   uploadsAvatar.single("avatar"),
   editProfile
 );
+apiRouter.post("/users/avatar", uploadsAvatar.single("avatar"), postAvatar);
 
 //Movie Router
 

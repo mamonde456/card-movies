@@ -20,12 +20,11 @@ const Router = () => {
         <Route path="/:userId" element={<Profile />}></Route>
         <Route path="/upload" element={<Upload />}></Route>
         <Route path="/movies" element={<Movies />}></Route>
-        <Route path="/movies/:movieId" element={<Detail />}>
-          <Route
-            path="/movies/:movieId/edit-movie"
-            element={<EditMovie />}
-          ></Route>
-        </Route>
+        <Route path="/movies/:movieId" element={<Detail />}></Route>
+        <Route
+          path="/movies/:movieId/edit-movie"
+          element={<EditMovie />}
+        ></Route>
       </Routes>
     </>
   );

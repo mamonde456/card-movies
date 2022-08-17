@@ -33,12 +33,19 @@ export const upload = async (req, res) => {
 };
 
 export const watch = async (req, res) => {
-  const { movieId } = req.body;
-  const movie = await Movie.findById(movieId);
-  if (!movie) {
-    return res.status(400).send("noting found.");
+  try {
+    const { movieId } = req.body;
+    const movie = await Movie.findById(movieId).populate("owner");
+    if (!movie) {
+      return res.status(400).send({ errorMessage: "movie noting found." });
+    }
+
+    return res.status(200).send(movie);
+  } catch (error) {
+    return res
+      .status(400)
+      .send({ errorTitle: "404", errorMessage: "movie noting found." });
   }
-  return res.status(200).send(movie);
 };
 
 export const editMovie = (req, res) => {

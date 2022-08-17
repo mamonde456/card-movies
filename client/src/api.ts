@@ -59,3 +59,26 @@ export function genresData() {
     `${APIBASEURL}/genre/list?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
   ).then((response) => response.json());
 }
+
+export function watchData(movieId: string) {
+  return fetch(`${LOCALBASEURL}/movies/watch`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      movieId,
+    }),
+  }).then((response) => response.json());
+}
+export function avatarData(userId: string) {
+  return fetch(`${LOCALBASEURL}/users/avatar`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+    }),
+  }).then((response) => response.json());
+}

@@ -14,20 +14,21 @@ export const loggedInUser = atom({
     password: "",
   },
 });
+interface IMovie {
+  thumb: string;
+  movie: string;
+  _id: string;
+  title: string;
+  description: string;
+  adult: boolean;
+  genres: [type: string];
+  createdAt: string;
+  meta: { views: number; rating: number };
+}
 
-export const atomMovieDB = atom({
+export const atomMovieDB = atom<IMovie[]>({
   key: "movies",
-  default: [
-    {
-      _id: "",
-      title: "",
-      description: "",
-      adult: false,
-      genres: [],
-      createdAt: "",
-      meta: { views: 0, rating: 0 },
-    },
-  ],
+  default: [],
 });
 
 export const categoryList = atom({

@@ -36,6 +36,6 @@ apiRouter.post(
   uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
   upload
 );
-apiRouter.post("/movies/edit-movie", editMovie);
+apiRouter.post("/movies/:id([0-9a-f]{24})/edit-movie", editMovie);
 
 export default apiRouter;

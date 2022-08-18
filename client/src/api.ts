@@ -82,3 +82,27 @@ export function avatarData(userId: string) {
     }),
   }).then((response) => response.json());
 }
+
+export function editMovieData(movieId: string) {
+  return fetch(`${LOCALBASEURL}/movies/${movieId}/edit-movie`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      movieId,
+    }),
+  }).then((response) => response.json());
+}
+
+export function editMovieUpdate(movieId: string) {
+  return fetch(`${LOCALBASEURL}/movies/${movieId}/edit-movie`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      movieId,
+    }),
+  }).then((response) => response.json());
+}

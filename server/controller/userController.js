@@ -27,9 +27,7 @@ export const join = async (req, res) => {
 
 export const login = async (req, res) => {
   const {
-    body: {
-      user: { username, password },
-    },
+    body: { username, password },
   } = req;
 
   const user = await User.findOne({ username });

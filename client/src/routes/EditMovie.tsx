@@ -1,25 +1,38 @@
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
+import { editMovieData } from "../api";
 import { atomMovieDB, categoryList } from "../atom";
 
+interface IWatchmeta {
+  state: {
+    _id: string;
+    thumbUrl: string;
+    movieUrl: string;
+    title: string;
+    adult: true;
+    description: string;
+    genres: [type: string];
+  };
+}
+
 const EditMovie = () => {
-  const movies = useRecoilValue(atomMovieDB);
   const categoryAtom = useRecoilValue(categoryList);
   const { movieId } = useParams();
-  const [movie, setMovie] = useState([]) as any;
+  const { state } = useState;
   const [isAdult, setIsAdult] = useState(false);
   const [genres, setGenres] = useState([]) as any;
   const [isGenresChecked, setIsGenresChecked] = useState(false);
-  useEffect(() => {
-    const data = movies.find((el) => {
-      return el._id === movieId;
-    });
-    setMovie(data);
-    const isTrue = data?.adult;
-    setIsAdult(isTrue || false);
-    setGenres(data?.genres);
-  }, []);
+  // useEffect(() => {
+  //   const data = movies.find((el) => {
+  //     return el._id === movieId;
+  //   });
+  //   // setMovie(data);
+  //   const isTrue = data?.adult;
+  //   setIsAdult(isTrue || false);
+  //   setGenres(data?.genres);
+  // }, []);
 
   const onCheckedElement = ({ target }: any) => {
     setIsGenresChecked(!isGenresChecked);
@@ -73,7 +86,7 @@ const EditMovie = () => {
               type="checkbox"
               value={category.data}
               onChange={(e) => onCheckedElement(e)}
-              checked={genres.includes(category.data) ? true : false}
+              // checked={genres.includes(category.data) ? true : false}
               // defaultChecked={genres.includes(category.data) ? true : false}
             />
           </label>

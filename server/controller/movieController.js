@@ -1,3 +1,4 @@
+import fetch from "cross-fetch";
 import Movie from "../../models/Movie";
 import User from "../../models/User";
 
@@ -48,6 +49,18 @@ export const watch = async (req, res) => {
   }
 };
 
-export const editMovie = (req, res) => {
-  // const {body}=req
+export const editMovie = async (req, res) => {
+  const { movieId } = req.body;
+  const movies = await Movie.findById(movieId);
+  console.log(movies);
+  await fetch(`http://localhost:3000/movies/${movieId}/edit-movie`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ movies }),
+  });
+  // const movie=await Movie.findByIdAndUpdate(movieId,{
+
+  // })
 };

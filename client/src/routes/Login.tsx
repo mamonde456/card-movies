@@ -81,17 +81,16 @@ interface ILogin {
 }
 
 const Login = () => {
-  const [user, setUser] = useState<ILogin>({
-    username: "",
-    password: 0,
-  });
   const [isLogin, setIsLogin] = useRecoilState(loggedInState);
-
   let navigate = useNavigate();
 
   // login userInfo post
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const {
+      currentTarget: { username, password },
+    } = event;
+
     const response = await fetch("http://localhost:5000/api/users/login", {
       method: "post",
       credentials: "include",
@@ -99,7 +98,8 @@ const Login = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        user,
+        username: username.value,
+        password: password.value,
       }),
     });
     const data = await response.json();
@@ -112,15 +112,15 @@ const Login = () => {
       console.log(data.errorMessage);
     }
   };
-  const onChange = (e: any) => {
-    const {
-      target: { name, value },
-    } = e;
-    setUser({
-      ...user,
-      [name]: value,
-    });
-  };
+  // const onChange = (e: any) => {
+  //   const {
+  //     target: { name, value },
+  //   } = e;
+  //   setUser({
+  //     ...user,
+  //     [name]: value,
+  //   });
+  // };
 
   return (
     <Wrapper>
@@ -135,7 +135,7 @@ const Login = () => {
           <Input
             placeholder="username"
             name="username"
-            onChange={onChange}
+            // onChange={onChange}
             required
           />
         </Box>
@@ -148,7 +148,7 @@ const Login = () => {
           <Input
             placeholder="password"
             name="password"
-            onChange={onChange}
+            // onChange={onChange}
             required
           />
         </Box>

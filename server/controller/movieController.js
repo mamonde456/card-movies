@@ -50,17 +50,27 @@ export const watch = async (req, res) => {
 };
 
 export const editMovie = async (req, res) => {
-  const { movieId } = req.body;
-  const movies = await Movie.findById(movieId);
-  console.log(movies);
-  await fetch(`http://localhost:3000/movies/${movieId}/edit-movie`, {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ movies }),
-  });
-  // const movie=await Movie.findByIdAndUpdate(movieId,{
-
-  // })
+  const {
+    body: { id, title, adult, description, genres },
+    files,
+  } = req;
+  const movie = await Movie.findById(id);
+  try {
+    await Movie.findByIdAndUpdate(
+      id,
+      {
+        thumbUrl: files.thumb ? files.thumb[0].path : movie.thumbUrl,
+        movieUrl: files.movie ? files.movie[0].path : movie.movieUrl,
+        title,
+        adult,
+        description,
+        genres,
+      },
+      { new: true }
+    );
+    return res.sendStatus(200);
+  } catch (error) {
+    // console.log(error);
+    return res.status(400).send({ errorMessage: "File update failed." });
+  }
 };

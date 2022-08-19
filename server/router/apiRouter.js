@@ -20,7 +20,7 @@ apiRouter.post("/users/logout", logout);
 
 //User Router
 apiRouter.post(
-  "/users/edit-profile",
+  "/users/:id([0-9a-f]{24})/edit-profile",
   uploadsAvatar.single("avatar"),
   editProfile
 );
@@ -36,6 +36,10 @@ apiRouter.post(
   uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
   upload
 );
-apiRouter.post("/movies/:id([0-9a-f]{24})/edit-movie", editMovie);
+apiRouter.post(
+  "/movies/:id([0-9a-f]{24})/edit-movie",
+  uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
+  editMovie
+);
 
 export default apiRouter;

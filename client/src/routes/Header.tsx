@@ -106,7 +106,9 @@ const Header = () => {
                 <Link to="/upload">upload</Link>
               </NavLi>
               <NavLi>
-                <Link to={isLoginUser._id}>{isLoginUser.username} profile</Link>
+                <Link to={`users/${isLoginUser._id}`}>
+                  {isLoginUser.username} profile
+                </Link>
               </NavLi>
               <NavLi>
                 <LogOut onClick={onLogOut}>log out</LogOut>

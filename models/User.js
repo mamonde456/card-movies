@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   info: { type: String, trim: true },
   location: { type: String },
-  videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+  videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
 });
 

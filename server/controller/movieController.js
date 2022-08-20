@@ -1,6 +1,7 @@
 import fetch from "cross-fetch";
 import Movie from "../../models/Movie";
 import User from "../../models/User";
+import Comment from "../../models/Comment";
 
 export const home = async (req, res) => {
   const movies = await Movie.find({})
@@ -17,7 +18,7 @@ export const upload = async (req, res) => {
   const user = await User.findById(userId);
   const isAdult = adult ? true : false;
   try {
-    await Movie.create({
+    const movie = await Movie.create({
       thumbUrl: files.thumb[0].path,
       movieUrl: files.movie[0].path,
       title,
@@ -27,16 +28,20 @@ export const upload = async (req, res) => {
       createdAt: Date.now(),
       owner: user,
     });
+    await user.videos.push(movie);
+    await user.save();
+    return res.sendStatus(200);
   } catch (err) {
     return res.status(400).send(err);
   }
-  return res.sendStatus(200);
 };
 
 export const watch = async (req, res) => {
   try {
     const { movieId } = req.body;
-    const movie = await Movie.findById(movieId).populate("owner");
+    const movie = await Movie.findById(movieId)
+      .populate("owner")
+      .populate("comments");
     if (!movie) {
       return res.status(400).send({ errorMessage: "movie noting found." });
     }
@@ -73,4 +78,26 @@ export const editMovie = async (req, res) => {
     // console.log(error);
     return res.status(400).send({ errorMessage: "File update failed." });
   }
+};
+
+export const comments = async (req, res) => {
+  const {
+    body: { userId, movieId, value },
+  } = req;
+
+  const user = await User.findById(userId);
+  const movie = await Movie.findById(movieId);
+  const comment = await Comment.create({
+    name: user.name,
+    text: value,
+    owner: userId,
+    videos: movieId,
+  });
+  console.log(comment);
+  user.comments.push(comment);
+  movie.comments.push(comment);
+  await user.save();
+  await movie.save();
+
+  return res.sendStatus(200);
 };

@@ -72,7 +72,19 @@ export function watchData(movieId: string) {
   }).then((response) => response.json());
 }
 export function avatarData(userId: string) {
-  return fetch(`${LOCALBASEURL}/users/avatar`, {
+  return fetch(`${LOCALBASEURL}/users/${userId}`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+    }),
+  }).then((response) => response.json());
+}
+
+export function userProfileData(userId: string) {
+  return fetch(`${LOCALBASEURL}/users/${userId}`, {
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -103,6 +115,18 @@ export function editMovieUpdate(movieId: string) {
     },
     body: JSON.stringify({
       movieId,
+    }),
+  }).then((response) => response.json());
+}
+
+export function comments(userId: string) {
+  return fetch(`${LOCALBASEURL}/comments`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
     }),
   }).then((response) => response.json());
 }

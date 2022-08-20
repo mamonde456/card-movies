@@ -51,6 +51,15 @@ export const logout = (req, res) => {
   }
 };
 
+export const getProfile = async (req, res) => {
+  const { userId } = req.body;
+  const user = await User.findById(userId).populate("videos");
+  // .populate("comments");
+  if (!user) {
+    return res.status(400).send({ errorMessage: "user noting found." });
+  }
+  return res.status(200).send(user);
+};
 export const editProfile = async (req, res) => {
   const {
     body: { userId, username, name, email, location, info },
@@ -71,17 +80,4 @@ export const editProfile = async (req, res) => {
   );
 
   return res.status(200).send(updateUser);
-};
-
-export const postAvatar = async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(400).send({ errorMessage: "user noting found." });
-    }
-    return res.status(200).send(user);
-  } catch (error) {
-    return res.status(400).send({ errorMessage: "user noting found." });
-  }
 };

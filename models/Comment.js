@@ -5,9 +5,11 @@ const commentSchema = mongoose.Schema({
   text: { type: String, required: true, trim: true },
   createdAt: { type: Date, required: true, default: Date.now },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
-  videos: [
-    { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Movie" },
-  ],
+  videos: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Movie",
+  },
 });
 
 const Comment = mongoose.model("Comment", commentSchema);

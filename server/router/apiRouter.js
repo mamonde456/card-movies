@@ -1,11 +1,17 @@
 import express from "express";
-import { editMovie, home, upload, watch } from "../controller/movieController";
+import {
+  comments,
+  editMovie,
+  home,
+  upload,
+  watch,
+} from "../controller/movieController";
 import {
   editProfile,
+  getProfile,
   join,
   login,
   logout,
-  postAvatar,
 } from "../controller/userController";
 import { uploadsAvatar, uploadsMovies } from "../middleware";
 
@@ -24,7 +30,11 @@ apiRouter.post(
   uploadsAvatar.single("avatar"),
   editProfile
 );
-apiRouter.post("/users/avatar", uploadsAvatar.single("avatar"), postAvatar);
+apiRouter.post(
+  "/users/:id([0-9a-f]{24})",
+  uploadsAvatar.single("avatar"),
+  getProfile
+);
 
 //Movie Router
 
@@ -41,5 +51,9 @@ apiRouter.post(
   uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
   editMovie
 );
+
+//Api
+
+apiRouter.post("/comments", comments);
 
 export default apiRouter;

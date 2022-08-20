@@ -1,9 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { avatarData, IUserMovies, userMovies, watchData } from "../api";
+import {
+  avatarData,
+  comments,
+  IUserMovies,
+  userMovies,
+  watchData,
+} from "../api";
 
 const Wrapper = styled.div`
   padding-top: 100px;
@@ -110,11 +116,28 @@ const AvatarImg = styled.div<{ avatarUrl: string }>`
   background-position: center;
 `;
 
+const MovieOwner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  span {
+    font-size: 18px;
+  }
+`;
+
 const Text = styled.p`
   span {
     font-size: 12px;
     opacity: 0.5;
   }
+`;
+
+const Desription = styled.p`
+  width: 550px;
+  height: 120px;
+  padding: 10px;
+  line-height: 22px;
+  word-wrap: break-word;
 `;
 
 const AnotherWrap = styled.div`
@@ -196,9 +219,10 @@ const VideoCommentsWrap = styled.div`
 `;
 
 const CommentsFormWrap = styled.div`
-  width: 100%;
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 50px;
   padding: 10px;
-  background: red;
   display: flex;
   justify-content: center;
 `;
@@ -231,13 +255,66 @@ const CommentInput = styled.input`
   transition: ease 0.5s;
   &:focus {
     border-bottom: solid 2px rgba(255, 255, 255, 1);
+    .commentBtn {
+      display: block;
+    }
   }
 `;
 
-const VideoComments = styled.div``;
+const CommentBtn = styled.button`
+  width: 100px;
+  height: 50px;
+  background: none;
+  border-radius: 10px;
+  // position: relative;
+  // top: 55px;
+  // right: 120px;
+`;
 
-const CommentsList = styled.ul``;
-const CommentsLi = styled.li``;
+const VideoComments = styled.div`
+  padding: 10px;
+`;
+
+const CommentsList = styled.ul`
+  width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: blue;
+`;
+const CommentsLi = styled.li`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: white;
+  background: red;
+`;
+const CommentText = styled.div`
+  width: 100%;
+  padding: 10px;
+  span {
+    font-size: 18px;
+  }
+`;
+const CommentOwner = styled.p`
+  margin: 0;
+  margin-bottom: 10px;
+  span {
+    margin-left: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+`;
+
+const CommentImage = styled.div<{ avatarUrl: string }>`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: white;
+  background-image: url(${(props) => props.avatarUrl});
+  background-size: cover;
+  backround-position: center;
+`;
 
 const Detail = () => {
   const { movieId } = useParams();
@@ -245,11 +322,13 @@ const Detail = () => {
     ["watch", movieId],
     async () => await watchData(movieId || "")
   ) as any;
+  console.log(watch);
 
   const { isLoading: userMovieLoading, data: userMovie } = useQuery<
     IUserMovies[]
   >(["watch", "userMovies"], userMovies);
   const [another, setAnother] = useState<IUserMovies[]>();
+
   useEffect(() => {
     const data = userMovie?.filter((movies) => {
       return movies._id !== movieId;
@@ -257,6 +336,33 @@ const Detail = () => {
     setAnother(data);
   }, [userMovie]);
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const {
+      currentTarget: {
+        comment: { value },
+      },
+    } = event;
+    const response = await fetch(`http://localhost:5000/api/comments`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user._id,
+        movieId,
+        value,
+      }),
+    });
+    const data = await response.json();
+    if (response.status === 200) {
+      console.log(data);
+    } else if (response.status === 400) {
+      console.log(data);
+    }
+  };
+
   return (
     <Wrapper>
       {watchLoading ? (
@@ -326,15 +432,23 @@ const Detail = () => {
                       <p>{watch.meta.rating} 좋아요</p>
                     </VideoMeta>
                     <hr></hr>
-                    <AvatarImg
-                      avatarUrl={
-                        `http://localhost:5000/${watch.owner.avatarUrl}` || ""
-                      }
-                    ></AvatarImg>
-                    <Text>{watch.description}</Text>
+                    <MovieOwner>
+                      <Link to={`/users/${watch.owner._id}`}>
+                        <AvatarImg
+                          avatarUrl={
+                            `http://localhost:5000/${watch.owner.avatarUrl}` ||
+                            ""
+                          }
+                        ></AvatarImg>
+                      </Link>
+                      <Link to={`/users/${watch.owner._id}`}>
+                        <span>{watch.owner.name}</span>
+                      </Link>
+                    </MovieOwner>
+                    <Desription>{watch.description}</Desription>
                     <Text>
                       {watch.genres.map((genre: string) => (
-                        <span>{genre}</span>
+                        <span key={genre}>{genre}</span>
                       ))}
                     </Text>
                   </VideoInfo>
@@ -347,6 +461,7 @@ const Detail = () => {
                         {another?.map((movie) => (
                           <Link to={`/movies/${movie._id}`}>
                             <Images
+                              key={movie._id}
                               bgPhoto={
                                 "http://localhost:5000/" + movie.movieUrl
                               }
@@ -395,17 +510,34 @@ const Detail = () => {
               </VideoContainer>
               <VideoCommentsWrap>
                 <CommentsFormWrap>
-                  <CommentForm>
+                  <CommentForm onSubmit={onSubmit}>
                     <User
                       avatarUrl={"http://localhost:5000/" + user.avatarUrl}
                     ></User>
-                    <CommentInput placeholder="write a comment..."></CommentInput>
-                    <button>send</button>
+                    <CommentInput
+                      name="comment"
+                      type="text"
+                      placeholder="write a comment..."
+                    ></CommentInput>
+                    <CommentBtn>send</CommentBtn>
                   </CommentForm>
                 </CommentsFormWrap>
+                <p>{watch?.comments[0]?.owner.avatarUrl}</p>
                 <VideoComments>
                   <CommentsList>
-                    <CommentsLi>ddd</CommentsLi>
+                    {watch?.comments?.map((comment: any) => (
+                      <CommentsLi key={comment?._id}>
+                        <CommentImage
+                          avatarUrl={"http://localhost:5000/" + user?.avatarUrl}
+                        ></CommentImage>
+                        <CommentText>
+                          <CommentOwner>
+                            {comment?.name} <span>{comment?.createdAt}</span>
+                          </CommentOwner>
+                          <span>{comment?.text}</span>
+                        </CommentText>
+                      </CommentsLi>
+                    ))}
                   </CommentsList>
                 </VideoComments>
               </VideoCommentsWrap>

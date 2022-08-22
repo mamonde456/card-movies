@@ -53,7 +53,9 @@ export const logout = (req, res) => {
 
 export const getProfile = async (req, res) => {
   const { userId } = req.body;
-  const user = await User.findById(userId).populate("videos");
+  const user = await User.findById(userId)
+    .populate("videos")
+    .populate("comments");
   // .populate("comments");
   if (!user) {
     return res.status(400).send({ errorMessage: "user noting found." });

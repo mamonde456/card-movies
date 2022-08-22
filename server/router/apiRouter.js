@@ -1,6 +1,7 @@
 import express from "express";
 import {
   comments,
+  deleteMovie,
   editMovie,
   home,
   upload,
@@ -51,6 +52,7 @@ apiRouter.post(
   uploadsMovies.fields([{ name: "movie" }, { name: "thumb" }]),
   editMovie
 );
+apiRouter.post("/movies/delete-movie", deleteMovie);
 
 //Api
 

@@ -86,18 +86,31 @@ export const comments = async (req, res) => {
   } = req;
 
   const user = await User.findById(userId);
+  if (!user) {
+    return res.status(400).send({ errorMessage: "user nothing fonud" });
+  }
   const movie = await Movie.findById(movieId);
+  if (!movie) {
+    return res.status(400).send({ errorMessage: "movie nothing fonud" });
+  }
   const comment = await Comment.create({
+    avatarUrl: user.avatarUrl,
     name: user.name,
     text: value,
     owner: userId,
     videos: movieId,
   });
-  console.log(comment);
   user.comments.push(comment);
   movie.comments.push(comment);
   await user.save();
   await movie.save();
 
-  return res.sendStatus(200);
+  return res.status(200).send(comment);
+};
+
+export const deleteMovie = async (req, res) => {
+  const { movieId } = req.body;
+  console.log(movieId);
+  await Movie.findByIdAndDelete(movieId);
+  res.status(200).send("Movie deletion successful");
 };

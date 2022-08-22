@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -58,6 +58,9 @@ const BtnWrapper = styled.div`
   right: 10px;
   top: 10px;
   color: rgba(0, 0, 0, 0.8);
+  .commentsBtn {
+    right: -140px;
+  }
 `;
 
 const BtnIcon = styled.svg`
@@ -95,6 +98,7 @@ const EditBtn = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  cursor: pointer;
 `;
 
 const Title = styled.h1`
@@ -125,11 +129,12 @@ const MovieOwner = styled.div`
   }
 `;
 
-const Text = styled.p`
-  span {
-    font-size: 12px;
-    opacity: 0.5;
-  }
+const Text = styled.p``;
+
+const Genre = styled.span`
+  font-size: 12px;
+  opacity: 0.5;
+  margin-left: 10px;
 `;
 
 const Desription = styled.p`
@@ -145,6 +150,11 @@ const AnotherWrap = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+`;
+const NotingFonud = styled.p`
+  padding: 30px;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.5);
 `;
 
 const AnotherVideo = styled.div`
@@ -280,21 +290,17 @@ const CommentsList = styled.ul`
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: blue;
 `;
 const CommentsLi = styled.li`
   display: flex;
   gap: 10px;
   align-items: center;
   color: white;
-  background: red;
+  position: relative;
 `;
 const CommentText = styled.div`
   width: 100%;
   padding: 10px;
-  span {
-    font-size: 18px;
-  }
 `;
 const CommentOwner = styled.p`
   margin: 0;
@@ -316,26 +322,45 @@ const CommentImage = styled.div<{ avatarUrl: string }>`
   backround-position: center;
 `;
 
+const Icon = styled.svg`
+  width: 45px;
+  height: 45px;
+  fill: white;
+`;
+
+const MenuIcon = styled.svg`
+  width: 40px;
+  height: 40px;
+  fill: white;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  padding: 10px;
+`;
+
 const Detail = () => {
   const { movieId } = useParams();
   const { isLoading: watchLoading, data: watch } = useQuery(
     ["watch", movieId],
     async () => await watchData(movieId || "")
   ) as any;
-  console.log(watch);
-
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isLoading: userMovieLoading, data: userMovie } = useQuery<
     IUserMovies[]
   >(["watch", "userMovies"], userMovies);
   const [another, setAnother] = useState<IUserMovies[]>();
 
+  let navigator = useNavigate();
   useEffect(() => {
     const data = userMovie?.filter((movies) => {
       return movies._id !== movieId;
     });
     setAnother(data);
+    const isLogin = JSON.parse(sessionStorage.getItem("loggedIn") || "false");
+    setIsLoggedIn(isLogin);
   }, [userMovie]);
-  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -356,11 +381,31 @@ const Detail = () => {
       }),
     });
     const data = await response.json();
+    console.log(data);
     if (response.status === 200) {
       console.log(data);
     } else if (response.status === 400) {
       console.log(data);
     }
+  };
+
+  const onDeleteMovie = async () => {
+    const response = await fetch(
+      `http://localhost:5000/api/movies/delete-movie`,
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          movieId,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+    navigator("/");
   };
 
   return (
@@ -381,33 +426,33 @@ const Detail = () => {
                   src={`http://localhost:5000/${watch.movieUrl}`}
                   controls
                 />
-                <VideoContents>
+                <VideoContents key="videoWrap">
                   <VideoInfo>
-                    <BtnWrapper>
-                      <BtnIcon
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 128 512"
-                      >
-                        <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
-                      </BtnIcon>
-                      <BtnContents>
-                        <Link
-                          to={`/movies/${movieId}/edit-movie`}
-                          state={{ watch }}
+                    {String(watch.owner._id) === String(user._id) && (
+                      <BtnWrapper>
+                        <BtnIcon
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 448 512"
                         >
-                          <EditBtn>
-                            <BtnIcon
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 512 512"
-                            >
-                              <path d="M490.3 40.4C512.2 62.27 512.2 97.73 490.3 119.6L460.3 149.7L362.3 51.72L392.4 21.66C414.3-.2135 449.7-.2135 471.6 21.66L490.3 40.4zM172.4 241.7L339.7 74.34L437.7 172.3L270.3 339.6C264.2 345.8 256.7 350.4 248.4 353.2L159.6 382.8C150.1 385.6 141.5 383.4 135 376.1C128.6 370.5 126.4 361 129.2 352.4L158.8 263.6C161.6 255.3 166.2 247.8 172.4 241.7V241.7zM192 63.1C209.7 63.1 224 78.33 224 95.1C224 113.7 209.7 127.1 192 127.1H96C78.33 127.1 64 142.3 64 159.1V416C64 433.7 78.33 448 96 448H352C369.7 448 384 433.7 384 416V319.1C384 302.3 398.3 287.1 416 287.1C433.7 287.1 448 302.3 448 319.1V416C448 469 405 512 352 512H96C42.98 512 0 469 0 416V159.1C0 106.1 42.98 63.1 96 63.1H192z" />
-                            </BtnIcon>
-                            <p>Edit Movie</p>
-                          </EditBtn>
-                        </Link>
-                        <hr />
-                        <Link to="/delete-movie">
-                          <EditBtn>
+                          <path d="M120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200C94.93 200 120 225.1 120 256zM280 256C280 286.9 254.9 312 224 312C193.1 312 168 286.9 168 256C168 225.1 193.1 200 224 200C254.9 200 280 225.1 280 256zM328 256C328 225.1 353.1 200 384 200C414.9 200 440 225.1 440 256C440 286.9 414.9 312 384 312C353.1 312 328 286.9 328 256z" />
+                        </BtnIcon>
+                        <BtnContents>
+                          <Link
+                            to={`/movies/${movieId}/edit-movie`}
+                            state={{ watch }}
+                          >
+                            <EditBtn>
+                              <BtnIcon
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512"
+                              >
+                                <path d="M490.3 40.4C512.2 62.27 512.2 97.73 490.3 119.6L460.3 149.7L362.3 51.72L392.4 21.66C414.3-.2135 449.7-.2135 471.6 21.66L490.3 40.4zM172.4 241.7L339.7 74.34L437.7 172.3L270.3 339.6C264.2 345.8 256.7 350.4 248.4 353.2L159.6 382.8C150.1 385.6 141.5 383.4 135 376.1C128.6 370.5 126.4 361 129.2 352.4L158.8 263.6C161.6 255.3 166.2 247.8 172.4 241.7V241.7zM192 63.1C209.7 63.1 224 78.33 224 95.1C224 113.7 209.7 127.1 192 127.1H96C78.33 127.1 64 142.3 64 159.1V416C64 433.7 78.33 448 96 448H352C369.7 448 384 433.7 384 416V319.1C384 302.3 398.3 287.1 416 287.1C433.7 287.1 448 302.3 448 319.1V416C448 469 405 512 352 512H96C42.98 512 0 469 0 416V159.1C0 106.1 42.98 63.1 96 63.1H192z" />
+                              </BtnIcon>
+                              <p>Edit Movie</p>
+                            </EditBtn>
+                          </Link>
+                          <hr />
+                          <EditBtn onClick={onDeleteMovie}>
                             <BtnIcon
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 448 512"
@@ -416,9 +461,9 @@ const Detail = () => {
                             </BtnIcon>
                             <p>Delete Movie</p>
                           </EditBtn>
-                        </Link>
-                      </BtnContents>
-                    </BtnWrapper>
+                        </BtnContents>
+                      </BtnWrapper>
+                    )}
                     <Title>{watch.title}</Title>
                     <VideoMeta>
                       <p>
@@ -434,12 +479,18 @@ const Detail = () => {
                     <hr></hr>
                     <MovieOwner>
                       <Link to={`/users/${watch.owner._id}`}>
-                        <AvatarImg
-                          avatarUrl={
-                            `http://localhost:5000/${watch.owner.avatarUrl}` ||
-                            ""
-                          }
-                        ></AvatarImg>
+                        {watch.owner.avatarUrl ? (
+                          <AvatarImg
+                            avatarUrl={`http://localhost:5000/${watch.owner.avatarUrl}`}
+                          ></AvatarImg>
+                        ) : (
+                          <Icon
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 512 512"
+                          >
+                            <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                          </Icon>
+                        )}
                       </Link>
                       <Link to={`/users/${watch.owner._id}`}>
                         <span>{watch.owner.name}</span>
@@ -447,15 +498,13 @@ const Detail = () => {
                     </MovieOwner>
                     <Desription>{watch.description}</Desription>
                     <Text>
-                      {watch.genres.map((genre: string) => (
-                        <span key={genre}>{genre}</span>
-                      ))}
+                      {watch.genres.map((genre: string) =>
+                        genre.split(",").map((el: any) => <Genre>{el}</Genre>)
+                      )}
                     </Text>
                   </VideoInfo>
                   {userMovieLoading ? (
-                    <p>is loading...</p>
-                  ) : (
-                    <AnotherWrap>
+                    <AnotherWrap key="anotherMovie">
                       <AnotherTitle>Another Video</AnotherTitle>
                       <AnotherVideo>
                         {another?.map((movie) => (
@@ -471,6 +520,11 @@ const Detail = () => {
                           </Link>
                         ))}
                       </AnotherVideo>
+                    </AnotherWrap>
+                  ) : (
+                    <AnotherWrap>
+                      <AnotherTitle>Another Video</AnotherTitle>
+                      <NotingFonud>nothing found...</NotingFonud>
                     </AnotherWrap>
                   )}
                   <SnsWrap>
@@ -508,34 +562,93 @@ const Detail = () => {
                   </SnsWrap>
                 </VideoContents>
               </VideoContainer>
-              <VideoCommentsWrap>
-                <CommentsFormWrap>
-                  <CommentForm onSubmit={onSubmit}>
-                    <User
-                      avatarUrl={"http://localhost:5000/" + user.avatarUrl}
-                    ></User>
-                    <CommentInput
-                      name="comment"
-                      type="text"
-                      placeholder="write a comment..."
-                    ></CommentInput>
-                    <CommentBtn>send</CommentBtn>
-                  </CommentForm>
-                </CommentsFormWrap>
-                <p>{watch?.comments[0]?.owner.avatarUrl}</p>
+              <VideoCommentsWrap key="comments">
+                {isLoggedIn && (
+                  <CommentsFormWrap>
+                    <CommentForm onSubmit={onSubmit}>
+                      {user.avatarUrl ? (
+                        <User
+                          avatarUrl={"http://localhost:5000/" + user.avatarUrl}
+                        ></User>
+                      ) : (
+                        <Icon
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                        </Icon>
+                      )}
+                      <CommentInput
+                        name="comment"
+                        type="text"
+                        placeholder="write a comment..."
+                      ></CommentInput>
+                      <CommentBtn>send</CommentBtn>
+                    </CommentForm>
+                  </CommentsFormWrap>
+                )}
+
                 <VideoComments>
                   <CommentsList>
-                    {watch?.comments?.map((comment: any) => (
+                    {watch?.comments?.reverse().map((comment: any) => (
                       <CommentsLi key={comment?._id}>
-                        <CommentImage
-                          avatarUrl={"http://localhost:5000/" + user?.avatarUrl}
-                        ></CommentImage>
+                        {user.avatarUrl ? (
+                          <CommentImage
+                            avatarUrl={
+                              "http://localhost:5000/" + user?.avatarUrl
+                            }
+                          ></CommentImage>
+                        ) : (
+                          <Icon
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 512 512"
+                          >
+                            <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                          </Icon>
+                        )}
+
                         <CommentText>
                           <CommentOwner>
                             {comment?.name} <span>{comment?.createdAt}</span>
                           </CommentOwner>
                           <span>{comment?.text}</span>
                         </CommentText>
+                        {String(comment.owner) === String(user._id) && (
+                          <BtnWrapper>
+                            <MenuIcon
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 128 512"
+                            >
+                              <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
+                            </MenuIcon>
+                            <BtnContents className="commentsBtn">
+                              <Link
+                                to={`/movies/${movieId}/edit-movie`}
+                                state={{ watch }}
+                              >
+                                <EditBtn>
+                                  <BtnIcon
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 512 512"
+                                  >
+                                    <path d="M490.3 40.4C512.2 62.27 512.2 97.73 490.3 119.6L460.3 149.7L362.3 51.72L392.4 21.66C414.3-.2135 449.7-.2135 471.6 21.66L490.3 40.4zM172.4 241.7L339.7 74.34L437.7 172.3L270.3 339.6C264.2 345.8 256.7 350.4 248.4 353.2L159.6 382.8C150.1 385.6 141.5 383.4 135 376.1C128.6 370.5 126.4 361 129.2 352.4L158.8 263.6C161.6 255.3 166.2 247.8 172.4 241.7V241.7zM192 63.1C209.7 63.1 224 78.33 224 95.1C224 113.7 209.7 127.1 192 127.1H96C78.33 127.1 64 142.3 64 159.1V416C64 433.7 78.33 448 96 448H352C369.7 448 384 433.7 384 416V319.1C384 302.3 398.3 287.1 416 287.1C433.7 287.1 448 302.3 448 319.1V416C448 469 405 512 352 512H96C42.98 512 0 469 0 416V159.1C0 106.1 42.98 63.1 96 63.1H192z" />
+                                  </BtnIcon>
+                                  <p>Edit Comment</p>
+                                </EditBtn>
+                              </Link>
+                              <hr />
+                              <EditBtn>
+                                <BtnIcon
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 448 512"
+                                >
+                                  <path d="M135.2 17.69C140.6 6.848 151.7 0 163.8 0H284.2C296.3 0 307.4 6.848 312.8 17.69L320 32H416C433.7 32 448 46.33 448 64C448 81.67 433.7 96 416 96H32C14.33 96 0 81.67 0 64C0 46.33 14.33 32 32 32H128L135.2 17.69zM394.8 466.1C393.2 492.3 372.3 512 346.9 512H101.1C75.75 512 54.77 492.3 53.19 466.1L31.1 128H416L394.8 466.1z" />
+                                </BtnIcon>
+                                <p>Delete Comment</p>
+                              </EditBtn>
+                            </BtnContents>
+                          </BtnWrapper>
+                        )}
                       </CommentsLi>
                     ))}
                   </CommentsList>

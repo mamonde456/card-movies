@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { atomMovieDB } from "./atom";
+import ChangePassword from "./routes/ChangePassword";
 import Detail from "./routes/Detail";
 import EditMovie from "./routes/EditMovie";
 import EditProfile from "./routes/EditProfile";
@@ -18,12 +19,15 @@ const Router = () => {
         <Route path="/" element={<Home />}></Route>
         <Route path="/join" element={<Join />}></Route>
         <Route path="/login" element={<Login />}></Route>
-        <Route path="/users/:userId" element={<Profile />}>
-          <Route
-            path="/users/:userId/edit-profile"
-            element={<EditProfile />}
-          ></Route>
-        </Route>
+        <Route path="/users/:userId" element={<Profile />}></Route>
+        <Route
+          path="/users/:userId/edit-profile"
+          element={<EditProfile />}
+        ></Route>
+        <Route
+          path="/users/:userId/edit-profile/change-password"
+          element={<ChangePassword />}
+        ></Route>
         <Route path="/upload" element={<Upload />}></Route>
         <Route path="/movies" element={<Movies />}></Route>
         <Route path="/movies/:movieId" element={<Detail />}></Route>

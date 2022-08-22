@@ -1,5 +1,6 @@
 import { response } from "express";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
@@ -88,6 +89,7 @@ const TitleWrapper = styled.div`
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
+  position: relative;
 `;
 const TitleBox = styled.div`
   width: 100%;
@@ -143,6 +145,35 @@ const Image = styled.div<{ bgPhoto: string }>`
   }
 `;
 
+const UserIcon = styled.svg`
+  width: 100px;
+  height: 100px;
+  border-radius: 100px;
+  position: absolute;
+  left: -150px;
+  top: 80px;
+  fill: white;
+`;
+
+const ChangePasswordWrapper = styled.div`
+  position: absolute;
+  right: 0;
+  top: -70px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 10px;
+  &:hover {
+    background-color: white;
+    color: black;
+    svg {
+      fill: black;
+    }
+  }
+`;
+
 const EditProfile = () => {
   const { userId } = useParams();
   const [user, setUser] = useRecoilState(loggedInUser) as any;
@@ -192,7 +223,17 @@ const EditProfile = () => {
       <div>
         <UploadForm encType="multipart/form-data" onSubmit={onSubmit}>
           <UploadFileWrapper>
-            <Image bgPhoto={user.avatarUrl}></Image>
+            {user.avatarUrl ? (
+              <Image bgPhoto={user.avatarUrl}></Image>
+            ) : (
+              <UserIcon
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+              >
+                <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+              </UserIcon>
+            )}
+
             <SectionTitle>File Uploader</SectionTitle>
             <p>Avatar</p>
             <UploadFileBox>
@@ -212,6 +253,14 @@ const EditProfile = () => {
           </UploadFileWrapper>
           <SectionTitle>User Information</SectionTitle>
           <TitleWrapper>
+            <Link to="change-password">
+              <ChangePasswordWrapper>
+                <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+                  <path d="M592 288H576V212.7c0-41.84-30.03-80.04-71.66-84.27C456.5 123.6 416 161.1 416 208V288h-16C373.6 288 352 309.6 352 336v128c0 26.4 21.6 48 48 48h192c26.4 0 48-21.6 48-48v-128C640 309.6 618.4 288 592 288zM496 432c-17.62 0-32-14.38-32-32s14.38-32 32-32s32 14.38 32 32S513.6 432 496 432zM528 288h-64V208c0-17.62 14.38-32 32-32s32 14.38 32 32V288zM224 256c70.7 0 128-57.31 128-128S294.7 0 224 0C153.3 0 96 57.31 96 128S153.3 256 224 256zM320 336c0-8.672 1.738-16.87 4.303-24.7C308.6 306.6 291.9 304 274.7 304H173.3C77.61 304 0 381.7 0 477.4C0 496.5 15.52 512 34.66 512h301.7C326.3 498.6 320 482.1 320 464V336z" />
+                </Icon>
+                Change Password
+              </ChangePasswordWrapper>
+            </Link>
             <TitleBox>
               <TitleLabel htmlFor="username">Username</TitleLabel>
               <UploadInput
@@ -249,6 +298,7 @@ const EditProfile = () => {
           <SectionTitle>Introduction section</SectionTitle>
           <TitleLabel htmlFor="info">Self-introduction column</TitleLabel>
           <UploadTextArea placeholder="Introduce me." id="info" name="info" />
+
           <UploadBtn>save</UploadBtn>
         </UploadForm>
       </div>

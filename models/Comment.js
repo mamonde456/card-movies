@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const commentSchema = mongoose.Schema({
+  avatarUrl: { type: String },
   name: { type: String },
   text: { type: String, required: true, trim: true },
   createdAt: { type: Date, required: true, default: Date.now },

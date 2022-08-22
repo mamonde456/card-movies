@@ -1,11 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { response } from "express";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Outlet, useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { loggedInUser } from "../atom";
 import { userProfileData } from "../api";
 
 const Wrapper = styled.div`
@@ -107,11 +103,20 @@ const UserVideos = styled.div`
 const SectionTitle = styled.h3`
   padding: 10px;
 `;
-const UserVideosList = styled.ul``;
+const UserVideoList = styled.ul`
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+`;
 const UserVideosLi = styled.li`
-  width: 250px;
-  height: 150px;
+  width: 300px;
+  height: 200px;
   position: relative;
+  svg {
+    right: 0px;
+    top: 0px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.8));
+  }
 `;
 
 const VideoImage = styled.div<{ bgPhoto: string }>`
@@ -132,15 +137,65 @@ const VideoTitle = styled.p`
   font-weight: 700;
 `;
 
+const UserIcon = styled.svg`
+  width: 45px;
+  height: 45px;
+  fill: white;
+  margin-left: 10px;
+`;
+
+const UserCommentsWrap = styled.div`
+  width: 1200px;
+  margin: 0 auto;
+`;
+const UserCommentsList = styled.ul`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+const UserCommentLi = styled.li`
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  color: white;
+  position: relative;
+`;
+const CommentImage = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`;
+const CommentName = styled.p``;
+const CommentText = styled.p`
+  font-size: 18px;
+  font-weight: 700;
+  padding-left: 65px;
+`;
+const CommentAt = styled.p`
+  opacity: 0.5;
+  font-size: 12px;
+  padding-left: 65px;
+`;
+
+const MenuIcon = styled.svg`
+  width: 45px;
+  height: 45px;
+  padding: 10px;
+  fill: white;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+`;
+
 const Profile = () => {
   const { userId } = useParams();
-  console.log(userId);
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
   const { isLoading: userLoading, data: userData } = useQuery(
     ["user-propfile", userId],
     () => userProfileData(userId || "")
   ) as any;
-  console.log(userData);
-  useEffect(() => {}, []);
 
   return (
     <Wrapper>
@@ -151,7 +206,16 @@ const Profile = () => {
           {" "}
           <UserInfo>
             <UserBox>
-              <Image bgPhoto={userData.avatarUrl}></Image>
+              {userData.avatarUrl ? (
+                <Image bgPhoto={userData.avatarUrl}></Image>
+              ) : (
+                <UserIcon
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                </UserIcon>
+              )}
               <UserTitle>
                 <Name>{userData.name}</Name>
                 <Username>@{userData.username}</Username>
@@ -182,7 +246,7 @@ const Profile = () => {
                 <Location>{userData.location}</Location>
               </EtcBox>
             </UserEtc>
-            {String(userData._id) === String(userId) ? (
+            {String(user._id) === String(userId) ? (
               <EditBtn>
                 <Link to="edit-profile">edit Profile</Link>
               </EditBtn>
@@ -190,9 +254,15 @@ const Profile = () => {
           </UserInfo>
           <UserVideos>
             <SectionTitle>User Movies</SectionTitle>
-            <UserVideosList>
+            <UserVideoList>
               {userData?.videos?.map((el: any) => (
                 <UserVideosLi key={el._id}>
+                  <MenuIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 128 512"
+                  >
+                    <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
+                  </MenuIcon>
                   <Link to={`/movies/${el._id}`}>
                     <VideoImage
                       bgPhoto={`http://localhost:5000/${el.thumbUrl}`}
@@ -201,15 +271,40 @@ const Profile = () => {
                   </Link>
                 </UserVideosLi>
               ))}
-            </UserVideosList>
+            </UserVideoList>
           </UserVideos>
-          {/* <div>
-        <ul>
-          {userData?.comments?.map((el: any) => (
-            <li>{el}</li>
-          ))}
-        </ul>
-      </div> */}
+          <UserCommentsWrap>
+            <SectionTitle>User Comments</SectionTitle>
+            <UserCommentsList>
+              {userData?.comments.map((comment: any) => (
+                <UserCommentLi key={comment._id}>
+                  <MenuIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 128 512"
+                  >
+                    <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
+                  </MenuIcon>
+                  <Link to={`/movies/${comment.videos}`}>
+                    <CommentImage>
+                      {userData.avatarUrl ? (
+                        <Image bgPhoto={userData.avatarUrl}></Image>
+                      ) : (
+                        <UserIcon
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                        </UserIcon>
+                      )}
+                      <CommentName>{comment.name}</CommentName>
+                    </CommentImage>
+                    <CommentText>{comment.text}</CommentText>
+                    <CommentAt>{comment.createdAt}</CommentAt>
+                  </Link>
+                </UserCommentLi>
+              ))}
+            </UserCommentsList>
+          </UserCommentsWrap>
         </>
       )}
     </Wrapper>

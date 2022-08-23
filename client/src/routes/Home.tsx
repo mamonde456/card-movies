@@ -10,13 +10,67 @@ import {
   moviesData,
   userMovies,
 } from "../api";
-import { atomMovieDB } from "../atom";
 import { makeImageFormat } from "../until";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 const Wrapper = styled.div`
   padding-top: 100px;
+`;
+
+const Screen = styled.div<{ bgPhoto: string }>`
+  width: 100%;
+  height: 720px;
+  background: black;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)),
+    url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+  left: 0;
+  top: 80px;
+  color: white;
+  display: flex;
+  align-items: center;
+`;
+
+const TextBox = styled.div`
+  width: 1200px;
+  padding: 10px;
+  margin-left: 100px;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+`;
+
+const ScreenTitle = styled.p`
+  font-size: 42px;
+  font-weight: 700;
+`;
+const ScreenOverview = styled.p`
+  width: 800px;
+`;
+
+const ContentsWrapper = styled.div`
+  margin-top: 720px;
+`;
+
+const Nav = styled.div``;
+const NavText = styled.p`
+  height: 150px;
+  padding: 0px;
+  margin: 0px;
+  font-size: 62px;
+  color: white;
+  text-indent: 250px;
+  line-height: 150px;
+  border-bottom: solid 1px white;
+  transition: 0.5s ease;
+  &:first-child {
+    border-top: solid 1px white;
+  }
+  &:hover {
+    text-indent: 500px;
+    color: #54bab9;
+  }
 `;
 
 const CardBox = styled.div`
@@ -102,94 +156,85 @@ const Home = () => {
         <h1>Loading...</h1>
       ) : (
         <>
-          <Link to="/movies">
+          <Screen
+            key="screen"
+            bgPhoto={makeImageFormat(movies?.results[0].backdrop_path || "")}
+          >
+            <TextBox>
+              <ScreenTitle>{movies?.results[0].title}</ScreenTitle>
+              <ScreenOverview>{movies?.results[0].overview}</ScreenOverview>
+            </TextBox>
+          </Screen>
+          <ContentsWrapper key="contentswrap">
+            <Nav>
+              <Link to="users-movies">
+                <NavText>User-created movies</NavText>
+              </Link>
+              <NavText>Popular movies</NavText>
+              <NavText>The latest movie</NavText>
+              <NavText>a movie to be released</NavText>
+            </Nav>
             <ContentsTitle>User Movies</ContentsTitle>
-          </Link>
-          <CardBox>
-            {users?.map((movie: IUserMovies) => (
-              <Card key={movie._id}>
-                <CardFront>
-                  <Image bgPhoto={"http://localhost:5000/" + movie.thumbUrl} />{" "}
-                  <Link
-                    className="userMoviesTitle"
-                    to={`movies/${movie._id}`}
-                    state={{
-                      movieUrl: "http://localhost:5000/" + movie.movieUrl,
-                      title: movie.title,
-                      id: movie._id,
-                      description: movie.description,
-                      adult: movie.adult,
-                      rating: movie.meta.rating,
-                    }}
-                  >
-                    {movie.title}
-                  </Link>
-                </CardFront>
-                <CardBack>
-                  <Link
-                    to={`movies/${movie._id}`}
-                    state={{
-                      title: movie.title,
-                      id: movie._id,
-                      description: movie.description,
-                      adult: movie.adult,
-                      rating: movie.meta.rating,
-                    }}
-                  >
-                    {movie.title}
-                  </Link>
-                  <p>{movie.description}</p>
-                  <p>{movie.adult}</p>
-                  <div>{movie.genres}</div>
-                </CardBack>
-              </Card>
-            ))}
-          </CardBox>
-          <>
-            {movieLoading ? (
-              <p>dd</p>
-            ) : (
-              <CardBox>
-                <ContentsTitle>Popular Movies</ContentsTitle>
-                {movies?.results.map((movie: Iresults) => (
-                  <Link to={`movies/${movie.id}`}>
-                    <Card
-                      key={movie.id}
-                      whileHover={{ rotateY: isRotate ? 180 : 0 }}
+            <CardBox key="userMovieWrap">
+              {users?.map((movie: IUserMovies) => (
+                <Card key={movie._id}>
+                  <CardFront>
+                    <Image
+                      bgPhoto={"http://localhost:5000/" + movie.thumbUrl}
+                    />{" "}
+                    <Link
+                      className="userMoviesTitle"
+                      to={`movies/${movie._id}`}
+                      key={movie._id}
                     >
-                      <CardFront>
-                        <Image
-                          bgPhoto={makeImageFormat(movie.poster_path, "w500")}
-                        />
-                      </CardFront>
-                      <CardBack>
-                        <Link
-                          to={`movies/${movie.id}`}
-                          state={{
-                            title: movie.title,
-                            id: movie.id,
-                            description: movie.overview,
-                            adult: movie.adult,
-                            rating: movie.popularity,
-                          }}
-                        >
-                          {movie.title}
-                        </Link>
-                        <p>
-                          {movie.adult ? "청소년관람불가" : "청소년관람가능"}
-                        </p>
-                        <p>
-                          {movie.overview.length >= 200
-                            ? `${movie.overview.substring(0, 200)}...`
-                            : movie.overview}
-                        </p>
-                      </CardBack>
-                    </Card>
-                  </Link>
-                ))}
-              </CardBox>
-            )}
-          </>
+                      {movie.title}
+                    </Link>
+                  </CardFront>
+                  <CardBack>
+                    <Link to={`movies/${movie._id}`} key={movie._id}>
+                      {movie.title}
+                    </Link>
+                    <p>{movie.description}</p>
+                    <p>{movie.adult}</p>
+                    <div>{movie.genres}</div>
+                  </CardBack>
+                </Card>
+              ))}
+            </CardBox>
+            <>
+              {movieLoading ? (
+                <p>dd</p>
+              ) : (
+                <CardBox key="apiMovieWrap">
+                  <ContentsTitle>Popular Movies</ContentsTitle>
+                  {movies?.results.map((movie: Iresults) => (
+                    <Link to={`movies/${movie.id}`} key={movie.id}>
+                      <Card
+                        key={movie.id}
+                        whileHover={{ rotateY: isRotate ? 180 : 0 }}
+                      >
+                        <CardFront>
+                          <Image
+                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                          />
+                        </CardFront>
+                        <CardBack>
+                          <p>
+                            {movie.adult ? "청소년관람불가" : "청소년관람가능"}
+                          </p>
+                          <p>
+                            {movie.overview.length >= 200
+                              ? `${movie.overview.substring(0, 200)}...`
+                              : movie.overview}
+                          </p>
+                        </CardBack>
+                      </Card>
+                    </Link>
+                  ))}
+                </CardBox>
+              )}
+            </>
+          </ContentsWrapper>
         </>
       )}
     </Wrapper>

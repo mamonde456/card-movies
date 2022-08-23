@@ -83,3 +83,27 @@ export const editProfile = async (req, res) => {
 
   return res.status(200).send(updateUser);
 };
+
+export const changePassword = async (req, res) => {
+  const { userId, oldPassword, newPassword, confirmPassword } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(400).send({ errorMessage: "user noting found." });
+  }
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  if (!ok) {
+    return res
+      .status(400)
+      .send({ errorMessage: "Existing passwords do not match." });
+  }
+  if (newPassword !== confirmPassword) {
+    return res
+      .status(400)
+      .send({ errorMessage: "The new password does not match." });
+  }
+  user.password = newPassword;
+  await user.save();
+
+  return res.sendStatus(200);
+};

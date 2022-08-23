@@ -8,6 +8,7 @@ import {
   watch,
 } from "../controller/movieController";
 import {
+  changePassword,
   editProfile,
   getProfile,
   join,
@@ -37,6 +38,7 @@ apiRouter.post(
   getProfile
 );
 
+apiRouter.post("/change-password", changePassword);
 //Movie Router
 
 apiRouter.get("/home", home);

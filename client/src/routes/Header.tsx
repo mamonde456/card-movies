@@ -59,18 +59,15 @@ interface ILoginUser {
 }
 
 const Header = () => {
-  const [isLogin, setIsLogin] = useRecoilState(loggedInState);
-  const [isLoginUser, setIsLoginUser] = useState<ILoginUser>(
-    JSON.parse(sessionStorage.getItem("user") || "{}")
-  );
+  const loggedIn = JSON.parse(sessionStorage.getItem("loggedIn") || "false");
+  const user =
+    loggedIn === false
+      ? ""
+      : JSON.parse(sessionStorage.getItem("user") || "{}");
   let navigate = useNavigate();
-  useEffect(() => {
-    setIsLogin(isLogin);
-  }, [isLogin]);
   const onLogOut = async () => {
-    if (isLogin === true) {
+    if (loggedIn === true) {
       sessionStorage.removeItem("loggedIn");
-      setIsLogin(false);
       navigate("/");
     }
 
@@ -100,15 +97,13 @@ const Header = () => {
           <NavLi>
             <Link to="/">home</Link>
           </NavLi>
-          {isLogin ? (
+          {loggedIn ? (
             <>
               <NavLi>
                 <Link to="/upload">upload</Link>
               </NavLi>
               <NavLi>
-                <Link to={`users/${isLoginUser._id}`}>
-                  {isLoginUser.username} profile
-                </Link>
+                <Link to={`users/${user?._id}`}>{user?.username} profile</Link>
               </NavLi>
               <NavLi>
                 <LogOut onClick={onLogOut}>log out</LogOut>

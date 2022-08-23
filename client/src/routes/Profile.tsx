@@ -196,7 +196,7 @@ const Profile = () => {
     ["user-propfile", userId],
     () => userProfileData(userId || "")
   ) as any;
-
+  console.log(userData, user);
   return (
     <Wrapper>
       {userLoading ? (

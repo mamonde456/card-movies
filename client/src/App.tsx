@@ -59,7 +59,6 @@ function App() {
   return (
     <BrowserRouter>
       <GlobalStyle />
-      <Header />
 
       <Router />
     </BrowserRouter>

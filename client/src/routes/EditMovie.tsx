@@ -186,7 +186,7 @@ interface IWatchmeta {
     movieUrl: string;
     title: string;
     adult: true;
-    description: string;
+    overview: string;
     genres: [type: string];
   };
 }
@@ -250,14 +250,14 @@ const EditMovie = () => {
   const onSubmit = async (event: any) => {
     event.preventDefault();
     const {
-      target: { title, description, adult, thumb, movie },
+      target: { title, overview, adult, thumb, movie },
     } = event;
     const formData = new FormData();
     formData.append("id", movieId ? movieId : watch._id);
     formData.append("title", title.value ? title.value : watch.title);
     formData.append(
-      "description",
-      description.value ? description.value : watch.description
+      "overview",
+      overview.value ? overview.value : watch.overview
     );
     formData.append("genres", genres ? genres : watch.genres); // state
     formData.append("adult", adult.value ? adult.checked : watch.adult);
@@ -346,12 +346,12 @@ const EditMovie = () => {
             </CheckBox>
           </AdultLable>
         </TitleWrapper>
-        <TitleLabel htmlFor="description">Movie Description</TitleLabel>
+        <TitleLabel htmlFor="overview">Movie overview</TitleLabel>
         <UploadTextArea
-          id="description"
-          name="description"
-          placeholder="description"
-          defaultValue={watch?.description || ""}
+          id="overview"
+          name="overview"
+          placeholder="overview"
+          defaultValue={watch?.overview || ""}
         />
 
         <TitleLabel>Genres</TitleLabel>

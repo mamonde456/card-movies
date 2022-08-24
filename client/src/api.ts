@@ -5,14 +5,17 @@ const APIKEY = process.env.REACT_APP_API_KEY;
 const APIBASEURL = "https://api.themoviedb.org/3";
 
 export interface IUserMovies {
-  thumbUrl: string | "";
+  thumbUrl: string;
+  backdrop_path: string;
   movieUrl: string;
   _id: string;
+  id: string;
   title: string;
-  description: string;
+  overview: string;
   adult: boolean;
   genres: [];
   createdAt: string;
+  release_date: string;
   meta: { views: number; rating: number };
 }
 export interface Iresults {
@@ -44,14 +47,53 @@ interface IGenres {
   id: number;
   name: string;
 }
+interface IGenres {
+  id: number;
+  name: string;
+}
+interface Icompanies {
+  name: string;
+  id: number;
+  logo_path: string;
+  origin_country: string;
+}
+interface ICountries {
+  iso_3166_1: string;
+  name: string;
+}
+export interface IdetailMovie {
+  adult: boolean;
+  backdrop_path: string;
+  budget: number;
+  genres: IGenres[];
+  id: number;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  production_companies: Icompanies[];
+  production_countries: ICountries[];
+  release_date: string;
+  revenue: number;
+  runtime: number;
+  tagline: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+}
 
 export function userMovies() {
   return fetch(`${LOCALBASEURL}/home`).then((response) => response.json());
 }
 
-export function moviesData() {
+export function popularMovies() {
   return fetch(
     `${APIBASEURL}/movie/popular?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
+export function detailMovie(movieId: string) {
+  return fetch(
+    `${APIBASEURL}/movie/${movieId}?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
   ).then((response) => response.json());
 }
 export function genresData() {

@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IUserMovies } from "../api";
+import { makeImageFormat } from "../until";
 
 const ContentWrap = styled.div`
   width: 1200px;
-  height: 100%;
+  height: 100vh;
   margin: 0 auto;
   position: relative;
+  color: white;
 `;
 const MoviesList = styled.ul`
   counter-reset: numbering;
   width: 320px;
-  height: 700px;
+  height: 750px;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -52,6 +54,7 @@ const TxtBox = styled.p`
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+
   p {
     text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.8);
     margin: 0;
@@ -85,7 +88,7 @@ const Bg = styled.div<{ thumb: any }>`
   padding: 10px;
   border-radius: 30px;
   background-color: white;
-  background-image: url(http://localhost:5000/${(props) => props.thumb});
+  background-image: url(${(props) => props.thumb});
   background-size: cover;
   background-position: center;
   position: absolute;
@@ -110,6 +113,7 @@ const ContentTitle = styled.h3`
 `;
 const ContentText = styled.p`
   font-size: 18px;
+  word-wrap: break-word;
 `;
 
 const BtnText = styled.div`
@@ -130,43 +134,65 @@ const BtnText = styled.div`
   }
 `;
 
-const Movies = (users: any) => {
+const Movies = (props: any) => {
   const [backgroundUrl, setBackgroundUrl] = useState({
     id: "",
     thumbUrl: "",
     title: "",
-    description: "",
+    overview: "",
     adult: false,
     genres: [],
     createdAt: "",
   });
   const onClick = (movie: IUserMovies) => {
-    const thumbUrl = movie.thumbUrl;
+    const thumbUrl = movie.thumbUrl
+      ? "http://localhost:5000/" + movie.thumbUrl
+      : makeImageFormat(movie?.backdrop_path);
     const title = movie.title;
-    const description = movie.description;
+    const overview = movie.overview;
     const adult = movie.adult;
-    const genres = movie.genres;
-    const createdAt = movie.createdAt;
-    const id = movie._id;
+    const genres = movie.genres ? movie.genres : [];
+    const createdAt = movie.createdAt ? movie.createdAt : movie.release_date;
+    const id = movie._id ? movie._id : movie.id;
 
     setBackgroundUrl({
       id,
       thumbUrl,
       title,
-      description,
+      overview,
       adult,
       genres,
       createdAt,
     });
   };
+  useEffect(() => {
+    setBackgroundUrl({
+      id: props.movies._id ? props.movies[0]._id : props.movies[0].id,
+      thumbUrl: props.movies[0].thumbUrl
+        ? "http://localhost:5000/" + props.movies[0].thumbUrl
+        : makeImageFormat(props?.movies[0]?.backdrop_path),
+      title: props.movies ? props.movies[0].title : "",
+      overview: props.movies ? props.movies[0].overview : "",
+      adult: props.movies ? props.movies[0].adult : false,
+      genres: props.movies ? props.movies[0].genres : [],
+      createdAt: props.movies.createdAt
+        ? props.movies[0].createdAt
+        : props.movies[0].release_date,
+    });
+  }, [props.movies]);
+
   return (
     <>
       <ContentWrap>
         <MoviesList>
-          {users?.map((movie: any) => (
+          {props.movies.slice(0, 4)?.map((movie: any) => (
             <>
               <MoviesLi
-                bgPhoto={"http://localhost:5000/" + movie.thumbUrl}
+                bgPhoto={
+                  movie?.thumbUrl
+                    ? "http://localhost:5000/" + movie?.thumbUrl
+                    : makeImageFormat(movie.backdrop_path, "w500")
+                }
                 onClick={() => onClick(movie)}
               >
                 <IconBox>
@@ -178,24 +204,28 @@ const Movies = (users: any) => {
                   </Icon>
                 </IconBox>
                 <TxtBox>
-                  <LiTitle>{movie.title}</LiTitle>
-                  <LiText>{movie.createdAt.slice(0, 10)}</LiText>
+                  <LiTitle>{movie?.title}</LiTitle>
+                  <LiText>
+                    {movie?.release_date
+                      ? movie?.release_date
+                      : movie?.createdAt}
+                  </LiText>
                 </TxtBox>
               </MoviesLi>
             </>
           ))}
         </MoviesList>
         <ContentBox>
-          <ContentTitle>{backgroundUrl.title}</ContentTitle>
-          <ContentText>{backgroundUrl.description}</ContentText>
+          <ContentTitle>{backgroundUrl?.title}</ContentTitle>
+          <ContentText>{backgroundUrl?.overview}</ContentText>
           <ContentText>
-            {backgroundUrl.genres.map((genre) => (
+            {backgroundUrl?.genres?.map((genre) => (
               <span>{genre}</span>
             ))}
           </ContentText>
-          <ContentText>{backgroundUrl.createdAt}</ContentText>
+          <ContentText>{backgroundUrl?.createdAt}</ContentText>
         </ContentBox>
-        <Link to={backgroundUrl.id}>
+        <Link to={`/${props.link}-movies/${backgroundUrl.id}`}>
           <BtnText>
             <IconBox>
               <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">

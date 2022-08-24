@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IUserMovies, userMovies } from "../api";
+import Movies from "../components/Movies";
 
 const Wrapper = styled.div`
   // padding-top: 100px;
@@ -11,34 +12,21 @@ const Wrapper = styled.div`
   color: white;
 `;
 
-const Movies = () => {
-  const { isLoading: userLoading, data: users } = useQuery<IUserMovies[]>(
+const UsersMovies = () => {
+  const { isLoading, data } = useQuery<IUserMovies[]>(
     ["home", "userMovies"],
     userMovies
   );
-  useEffect(() => {
-    // setBackgroundUrl({
-    //   id: users ? users[0]._id : "",
-    //   thumbUrl: users ? users[0].thumbUrl : "",
-    //   title: users ? users[0].title : "",
-    //   description: users ? users[0].description : "",
-    //   adult: users ? users[0].adult : false,
-    //   genres: users ? users[0].genres : [],
-    //   createdAt: users ? users[0].createdAt : "",
-    // });
-  }, [users]);
-
+  console.log(data);
   return (
     <Wrapper>
-      {userLoading ? (
+      {isLoading ? (
         <h1>Loading...</h1>
       ) : (
-        <>
-          <Movies users={users || ""}></Movies>
-        </>
+        <Movies movies={data} link={"users"}></Movies>
       )}
     </Wrapper>
   );
 };
 
-export default Movies;
+export default UsersMovies;

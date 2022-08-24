@@ -5,7 +5,7 @@ const movieSchema = new mongoose.Schema({
   movieUrl: { type: String, required: true },
   title: { type: String, required: true },
   adult: { type: Boolean, required: true, default: false },
-  description: { type: String, required: true },
+  overview: { type: String, required: true },
   genres: [{ type: String, required: true }],
   // runtime: { type: String },
   createdAt: { type: Date, required: true, default: Date.now },

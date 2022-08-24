@@ -171,14 +171,14 @@ const Upload = () => {
     // title value Property 'value' does not exist on type 'string'. React.FormEvent<HTMLFormElement>
     event.preventDefault();
     const {
-      currentTarget: { thumb, movie, title, description, adult },
+      currentTarget: { thumb, movie, title, overview, adult },
     } = event;
     const formData = new FormData();
     formData.append("thumb", thumb.files[0]);
     formData.append("movie", movie.files[0]);
     formData.append("userId", user._id || "");
     formData.append("title", title.value);
-    formData.append("description", description.value);
+    formData.append("overview", overview.value);
     formData.append("adult", adult.value);
     formData.append("genres", isGenres);
     const response = await fetch("http://localhost:5000/api/movies/upload", {
@@ -299,12 +299,12 @@ const Upload = () => {
             </CheckBox>
           </AdultLable>
         </TitleWrapper>
-        <TitleLabel htmlFor="description">Movie Description</TitleLabel>
+        <TitleLabel htmlFor="overview">Movie overview</TitleLabel>
         <UploadTextArea
           required
-          id="description"
-          name="description"
-          placeholder="description"
+          id="overview"
+          name="overview"
+          placeholder="overview"
         />
 
         <TitleLabel>Genres</TitleLabel>

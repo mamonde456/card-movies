@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { atomMovieDB } from "./atom";
 import ChangePassword from "./routes/ChangePassword";
-import Detail from "./routes/Detail";
+import Detail from "./components/Detail";
 import EditMovie from "./routes/EditMovie";
 import EditProfile from "./routes/EditProfile";
 import Home from "./routes/Home";
@@ -11,7 +11,10 @@ import Login from "./routes/Login";
 import UserMovies from "./routes/UsersMovies";
 import Profile from "./routes/Profile";
 import Upload from "./routes/Upload";
-import Header from "./routes/Header";
+import Header from "./components/Header";
+import PopMovies from "./routes/PopMovies";
+import UserDetail from "./routes/UserDetail";
+import PopDetail from "./routes/PopDetail";
 
 const Router = () => {
   return (
@@ -32,10 +35,12 @@ const Router = () => {
           element={<ChangePassword />}
         ></Route>
         <Route path="/upload" element={<Upload />}></Route>
+        <Route path="/popular-movies" element={<PopMovies />}></Route>
         <Route path="/users-movies" element={<UserMovies />}></Route>
-        <Route path="/movies/:movieId" element={<Detail />}></Route>
+        <Route path="/users-movies/:movieId" element={<UserDetail />}></Route>
+        <Route path="/popular-movies/:movieId" element={<PopDetail />}></Route>
         <Route
-          path="/movies/:movieId/edit-movie"
+          path="/users-movies/:movieId/edit-movie"
           element={<EditMovie />}
         ></Route>
       </Routes>

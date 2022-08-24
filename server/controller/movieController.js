@@ -12,7 +12,7 @@ export const home = async (req, res) => {
 
 export const upload = async (req, res) => {
   const {
-    body: { title, description, adult, genres, userId },
+    body: { title, overview, adult, genres, userId },
     files,
   } = req;
   const user = await User.findById(userId);
@@ -23,7 +23,7 @@ export const upload = async (req, res) => {
       movieUrl: files.movie[0].path,
       title,
       adult: isAdult,
-      description,
+      overview,
       genres,
       createdAt: Date.now(),
       owner: user,
@@ -56,7 +56,7 @@ export const watch = async (req, res) => {
 
 export const editMovie = async (req, res) => {
   const {
-    body: { id, title, adult, description, genres },
+    body: { id, title, adult, overview, genres },
     files,
   } = req;
   const movie = await Movie.findById(id);
@@ -68,7 +68,7 @@ export const editMovie = async (req, res) => {
         movieUrl: files.movie ? files.movie[0].path : movie.movieUrl,
         title,
         adult,
-        description,
+        overview,
         genres,
       },
       { new: true }
@@ -113,4 +113,17 @@ export const deleteMovie = async (req, res) => {
   console.log(movieId);
   await Movie.findByIdAndDelete(movieId);
   res.status(200).send("Movie deletion successful");
+};
+
+export const views = async (req, res) => {
+  const { movieId } = req.body;
+
+  const movie = await Movie.findById(movieId);
+  if (!movie) {
+    return res.sendStatus(400);
+  }
+  movie.meta.views = movie.meta.views + 1;
+  await movie.save();
+
+  return res.sendStatus(200);
 };

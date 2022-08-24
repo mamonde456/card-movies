@@ -7,8 +7,8 @@ import {
   ItmdbMovies,
   IUserMovies,
   Iresults,
-  moviesData,
   userMovies,
+  popularMovies,
 } from "../api";
 import { makeImageFormat } from "../until";
 import { motion } from "framer-motion";
@@ -141,7 +141,7 @@ const Home = () => {
   );
   const { isLoading: movieLoading, data: movies } = useQuery<ItmdbMovies>(
     ["home", "tmdbMovies"],
-    moviesData
+    popularMovies
   );
   const { isLoading: genresLoading, data: genresList } = useQuery<IApiGenres>(
     ["home", ""],
@@ -170,7 +170,9 @@ const Home = () => {
               <Link to="users-movies">
                 <NavText>User-created movies</NavText>
               </Link>
-              <NavText>Popular movies</NavText>
+              <Link to="popular-movies">
+                <NavText>Popular movies</NavText>
+              </Link>
               <NavText>The latest movie</NavText>
               <NavText>a movie to be released</NavText>
             </Nav>
@@ -184,17 +186,17 @@ const Home = () => {
                     />{" "}
                     <Link
                       className="userMoviesTitle"
-                      to={`movies/${movie._id}`}
+                      to={`users-movies/${movie._id}`}
                       key={movie._id}
                     >
                       {movie.title}
                     </Link>
                   </CardFront>
                   <CardBack>
-                    <Link to={`movies/${movie._id}`} key={movie._id}>
+                    <Link to={`users-movies/${movie._id}`} key={movie._id}>
                       {movie.title}
                     </Link>
-                    <p>{movie.description}</p>
+                    <p>{movie.overview}</p>
                     <p>{movie.adult}</p>
                     <div>{movie.genres}</div>
                   </CardBack>

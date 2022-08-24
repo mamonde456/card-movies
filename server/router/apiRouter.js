@@ -5,6 +5,7 @@ import {
   editMovie,
   home,
   upload,
+  views,
   watch,
 } from "../controller/movieController";
 import {
@@ -59,5 +60,6 @@ apiRouter.post("/movies/delete-movie", deleteMovie);
 //Api
 
 apiRouter.post("/comments", comments);
+apiRouter.post("/views", views);
 
 export default apiRouter;

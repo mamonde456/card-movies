@@ -3,7 +3,6 @@ import { BrowserRouter } from "react-router-dom";
 import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { loggedInState } from "./atom";
-import Header from "./routes/Header";
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`

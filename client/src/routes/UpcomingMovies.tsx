@@ -1,24 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
-import { ItmdbMovies, popularMovies } from "../api";
+import { ItmdbMovies, upcomingMovies } from "../api";
 import Movies from "../components/Movies";
 
 const Wrapper = styled.div``;
 
-const PopMovies = () => {
+const UpcomingMovies = () => {
   const { isLoading, data } = useQuery<ItmdbMovies>(
-    ["watch", "popularMovies"],
-    popularMovies
+    ["watch", "upcomingMovies"],
+    upcomingMovies
   );
   return (
     <Wrapper>
       {isLoading ? (
         <p>is loading...</p>
       ) : (
-        <Movies movies={data?.results} link={"popular"}></Movies>
+        <Movies movies={data?.results} link={"upcoming"}></Movies>
       )}
     </Wrapper>
   );
 };
 
-export default PopMovies;
+export default UpcomingMovies;

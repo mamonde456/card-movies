@@ -9,6 +9,8 @@ import {
   Iresults,
   userMovies,
   popularMovies,
+  nowPlayingMovies,
+  topRatedMovies,
 } from "../api";
 import { makeImageFormat } from "../until";
 import { motion } from "framer-motion";
@@ -139,16 +141,11 @@ const Home = () => {
     ["home", "userMovies"],
     userMovies
   );
-  const { isLoading: movieLoading, data: movies } = useQuery<ItmdbMovies>(
-    ["home", "tmdbMovies"],
-    popularMovies
-  );
-  const { isLoading: genresLoading, data: genresList } = useQuery<IApiGenres>(
-    ["home", ""],
-    genresData
-  );
+  const { isLoading: nowMoviesLoading, data: nowMovies } =
+    useQuery<ItmdbMovies>(["home", "nowMovies"], nowPlayingMovies);
 
-  const [isRotate, setIsRotate] = useState(false);
+  const { isLoading: topMoviesLoading, data: topMovies } =
+    useQuery<ItmdbMovies>(["home", "topMovies"], topRatedMovies);
 
   return (
     <Wrapper>
@@ -158,11 +155,11 @@ const Home = () => {
         <>
           <Screen
             key="screen"
-            bgPhoto={makeImageFormat(movies?.results[0].backdrop_path || "")}
+            bgPhoto={makeImageFormat(nowMovies?.results[0].backdrop_path || "")}
           >
             <TextBox>
-              <ScreenTitle>{movies?.results[0].title}</ScreenTitle>
-              <ScreenOverview>{movies?.results[0].overview}</ScreenOverview>
+              <ScreenTitle>{nowMovies?.results[0].title}</ScreenTitle>
+              <ScreenOverview>{nowMovies?.results[0].overview}</ScreenOverview>
             </TextBox>
           </Screen>
           <ContentsWrapper key="contentswrap">
@@ -173,8 +170,12 @@ const Home = () => {
               <Link to="popular-movies">
                 <NavText>Popular movies</NavText>
               </Link>
-              <NavText>The latest movie</NavText>
-              <NavText>a movie to be released</NavText>
+              <Link to="latest-movies">
+                <NavText>The latest movie</NavText>
+              </Link>
+              <Link to="upcoming-movies">
+                <NavText>an upcoming movie</NavText>
+              </Link>
             </Nav>
             <ContentsTitle>User Movies</ContentsTitle>
             <CardBox key="userMovieWrap">
@@ -204,17 +205,44 @@ const Home = () => {
               ))}
             </CardBox>
             <>
-              {movieLoading ? (
+              {nowMoviesLoading ? (
                 <p>dd</p>
               ) : (
                 <CardBox key="apiMovieWrap">
-                  <ContentsTitle>Popular Movies</ContentsTitle>
-                  {movies?.results.map((movie: Iresults) => (
-                    <Link to={`movies/${movie.id}`} key={movie.id}>
-                      <Card
-                        key={movie.id}
-                        whileHover={{ rotateY: isRotate ? 180 : 0 }}
-                      >
+                  <ContentsTitle>Now Playing Movies</ContentsTitle>
+                  {nowMovies?.results.map((movie: Iresults) => (
+                    <Link to={`now-playing-movies/${movie.id}`} key={movie.id}>
+                      <Card key={movie.id}>
+                        <CardFront>
+                          <Image
+                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                          />
+                        </CardFront>
+                        <CardBack>
+                          <p>
+                            {movie.adult ? "청소년관람불가" : "청소년관람가능"}
+                          </p>
+                          <p>
+                            {movie.overview.length >= 200
+                              ? `${movie.overview.substring(0, 200)}...`
+                              : movie.overview}
+                          </p>
+                        </CardBack>
+                      </Card>
+                    </Link>
+                  ))}
+                </CardBox>
+              )}
+            </>
+            <>
+              {topMoviesLoading ? (
+                <p>dd</p>
+              ) : (
+                <CardBox key="apiMovieWrap">
+                  <ContentsTitle>Top Rated Movies</ContentsTitle>
+                  {topMovies?.results.map((movie: Iresults) => (
+                    <Link to={`top-rated-movies/${movie.id}`} key={movie.id}>
+                      <Card key={movie.id}>
                         <CardFront>
                           <Image
                             bgPhoto={makeImageFormat(movie.poster_path, "w500")}

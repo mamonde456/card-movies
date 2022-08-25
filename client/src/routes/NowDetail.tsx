@@ -7,8 +7,7 @@ import Detail from "../components/Detail";
 const Wrapper = styled.div`
   padding-top: 100px;
 `;
-
-const PopDetail = () => {
+const NowDetail = () => {
   const { movieId } = useParams();
   const { isLoading: detailLoading, data: detailData } = useQuery<IdetailMovie>(
     ["detail", movieId],
@@ -22,15 +21,13 @@ const PopDetail = () => {
     <Wrapper>
       {detailLoading ? (
         <p>is loading...</p>
+      ) : videosLoading ? (
+        <p>is loading...</p>
       ) : (
-        <Detail
-          detail={detailData}
-          link={"popular"}
-          videos={videosData}
-        ></Detail>
+        <Detail detail={detailData} link={"now"} videos={videosData}></Detail>
       )}
     </Wrapper>
   );
 };
 
-export default PopDetail;
+export default NowDetail;

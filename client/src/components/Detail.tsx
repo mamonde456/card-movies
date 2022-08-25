@@ -8,33 +8,89 @@ import { makeImageFormat } from "../until";
 
 const VideoContainer = styled.div`
   padding: 10px;
-  width: 1620px;
+  width: 1780px;
   min-height: 800px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   display: flex;
-  gap: 20px;
   margin: 0 auto;
+`;
+
+const BackBtn = styled.div`
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  left: 30px;
+  top: 150px;
+  border-radius: 10px 0px 0px 10px;
+  border: solid 1px rgba(0, 0, 0, 0.5);
+  border-right: none;
+  color: white;
+  display: flex;
+  align-items: center;
+`;
+const BackIcon = styled.svg`
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  fill: white;
 `;
 
 const Video = styled.video`
   width: 1000px;
-  // height: 780px;
-  background-color: black;
-`;
-const MovieImg = styled.div<{ movieImg: string }>`
-  width: 1000px;
   height: 780px;
+  background-color: black;
+  margin-right: 20px;
+`;
+const MovieImg = styled.div`
+  width: 100%;
+  height: 700px;
+  overflow: hidden;
+  margin-right: 20px;
+`;
+
+const ThumbImg = styled.div<{ movieImg: string }>`
   background-color: black;
   background-image: url(${(props) => props.movieImg});
   background-size: cover;
   background-position: center;
 `;
 
+const VideoWrap = styled.div<{ width: number }>`
+  width: ${(props) => props.width}px;
+  height: 100%;
+  float: left;
+`;
+
+const EmbedBox = styled.div`
+  // width: 1780px;
+  width: 1130px;
+  height: 700px;
+  embed {
+    width: 100%;
+    height: 100%;
+  }
+`;
+const HomeBtn = styled.div`
+  width: 100px;
+  height: 50px;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 5px 5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: white;
+`;
 const VideoContents = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
 `;
 
 const VideoInfo = styled.div`
@@ -106,6 +162,9 @@ const Title = styled.h1`
 const VideoMeta = styled.div`
   display: flex;
   gap: 10px;
+  span {
+    font-size: 14px;
+  }
 `;
 
 const AvatarImg = styled.div<{ avatarUrl: string }>`
@@ -127,7 +186,9 @@ const MovieOwner = styled.div`
   }
 `;
 
-const Text = styled.div``;
+const Text = styled.div`
+  padding-bottom: 20px;
+`;
 
 const Genre = styled.span`
   font-size: 12px;
@@ -135,12 +196,13 @@ const Genre = styled.span`
   margin-left: 10px;
 `;
 
-const Desription = styled.p`
+const Overview = styled.p`
   width: 550px;
-  height: 120px;
+  height: 150px;
   padding: 10px;
   line-height: 22px;
   word-wrap: break-word;
+  margin-bottom: 20px;
 `;
 
 const AnotherWrap = styled.div`
@@ -338,6 +400,7 @@ const MenuIcon = styled.svg`
 `;
 
 const CompaniesWrapper = styled.div`
+  margin-top: 50px;
   padding: 10px;
   color: white;
   display: grid;
@@ -359,12 +422,17 @@ const CompaniesLogo = styled.div<{ logo: string }>`
 `;
 const CompaniesText = styled.p``;
 
+const Tagline = styled.div`
+  padding: 10px;
+`;
+
 interface IGenres {
   id: number;
   name: string;
 }
 
 const Detail = (props: any) => {
+  console.log(props);
   const { movieId } = useParams();
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
   const isLoggedIn = JSON.parse(sessionStorage.getItem("loggedIn") || "false");
@@ -441,17 +509,51 @@ const Detail = (props: any) => {
   return (
     <>
       <VideoContainer>
-        {props?.detail?.link === "users" ? (
+        <Link
+          to={
+            props?.link === "users" || props.link === "popular"
+              ? `/${props?.link}-movies`
+              : `/`
+          }
+        >
+          <BackBtn>
+            <BackIcon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <path d="M160 416H96c-17.67 0-32-14.33-32-32V128c0-17.67 14.33-32 32-32h64c17.67 0 32-14.33 32-32S177.7 32 160 32H96C42.98 32 0 74.98 0 128v256c0 53.02 42.98 96 96 96h64c17.67 0 32-14.33 32-32S177.7 416 160 416zM502.6 233.4l-128-128c-12.51-12.51-32.76-12.49-45.25 0c-12.5 12.5-12.5 32.75 0 45.25L402.8 224H192C174.3 224 160 238.3 160 256s14.31 32 32 32h210.8l-73.38 73.38c-12.5 12.5-12.5 32.75 0 45.25s32.75 12.5 45.25 0l128-128C515.1 266.1 515.1 245.9 502.6 233.4z" />
+            </BackIcon>
+          </BackBtn>
+        </Link>
+        {props?.link === "users" ? (
           <Video
             src={`http://localhost:5000/${props?.detail?.movieUrl}`}
             controls
             onEnded={viewApi}
           />
         ) : (
-          <MovieImg movieImg={makeImageFormat(props?.detail?.backdrop_path)} />
+          <MovieImg>
+            {props?.videos?.results && (
+              <VideoWrap width={(props?.videos?.results.length + 1) * 1780}>
+                {props.videos.results.map((el: any) => (
+                  <EmbedBox>
+                    <embed
+                      title={el.name}
+                      src={`https://www.youtube.com/embed/${el.key}`}
+                    ></embed>
+                  </EmbedBox>
+                ))}
+              </VideoWrap>
+            )}
+            <ThumbImg
+              movieImg={makeImageFormat(props?.detail?.backdrop_path)}
+            ></ThumbImg>
+          </MovieImg>
         )}
 
         <VideoContents key="videoWrap">
+          {props?.detail?.homepage && (
+            <HomeBtn>
+              <Link to={props?.detail?.homepage}>Homepage</Link>
+            </HomeBtn>
+          )}
           <VideoInfo>
             {String(props?.detail?.owner?._id) === String(user._id) && (
               <BtnWrapper
@@ -492,7 +594,9 @@ const Detail = (props: any) => {
                 </BtnContents>
               </BtnWrapper>
             )}
+
             <Title>{props.detail.title}</Title>
+
             <VideoMeta>
               <p>
                 {props.link === "users"
@@ -502,7 +606,7 @@ const Detail = (props: any) => {
                   : null}
               </p>
               <p>
-                •
+                •&nbsp;
                 {props?.detail?.createdAt
                   ? props?.detail?.createdAt
                       ?.substring(0, 10)
@@ -510,10 +614,37 @@ const Detail = (props: any) => {
                   : props.detail.release_date}
                 .
               </p>
-              <p>
-                {props?.detail?.meta?.rating
-                  ? props?.detail?.meta?.rating + " 좋아요"
-                  : "popularity: " + props?.detail?.popularity}
+              {props?.link === "users" ? (
+                <p>{props?.detail?.meta?.rating + " 좋아요"}</p>
+              ) : (
+                <p>
+                  <span>Popularity: </span>
+                  {props?.detail?.popularity}
+                </p>
+              )}
+
+              <p
+                style={
+                  props.link === "users"
+                    ? { display: "none" }
+                    : { display: "block" }
+                }
+              >
+                <span>runtime: </span>
+                {props?.detail?.runtime &&
+                  `${Math.floor(props?.detail?.runtime / 60)}h ${Math.floor(
+                    props?.detail?.runtime % 60
+                  )}m`}
+              </p>
+              <p
+                style={
+                  props.link === "users"
+                    ? { display: "none" }
+                    : { display: "block" }
+                }
+              >
+                <span>Bote Average: </span>
+                {props?.detail?.vote_average && props?.detail?.vote_average}
               </p>
             </VideoMeta>
             <hr></hr>
@@ -541,7 +672,11 @@ const Detail = (props: any) => {
                 </>
               )}
             </MovieOwner>
-            <Desription>{props.detail.overview}</Desription>
+            <Tagline>
+              {props?.detail?.tagline && props?.detail?.tagline}
+            </Tagline>
+            <Overview>{props?.detail?.overview}</Overview>
+
             <Text>
               {props?.link === "users"
                 ? props?.detail?.genres?.map((genre: string) =>
@@ -616,6 +751,7 @@ const Detail = (props: any) => {
               </CompaniesBox>
             ))}
           </CompaniesWrapper>
+
           <SnsWrap>
             <Link to="https://twitter.com/">
               <SnsIconWrapper>

@@ -167,7 +167,7 @@ const Movies = (props: any) => {
   };
   useEffect(() => {
     setBackgroundUrl({
-      id: props.movies._id ? props.movies[0]._id : props.movies[0].id,
+      id: props.link === "users" ? props.movies[0]._id : props.movies[0].id,
       thumbUrl: props.movies[0].thumbUrl
         ? "http://localhost:5000/" + props.movies[0].thumbUrl
         : makeImageFormat(props?.movies[0]?.backdrop_path),

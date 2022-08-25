@@ -82,13 +82,29 @@ export interface IdetailMovie {
   vote_count: number;
 }
 
-export function userMovies() {
-  return fetch(`${LOCALBASEURL}/home`).then((response) => response.json());
-}
-
 export function popularMovies() {
   return fetch(
     `${APIBASEURL}/movie/popular?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
+export function latestMovies() {
+  return fetch(
+    `${APIBASEURL}/movie/latest?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
+export function upcomingMovies() {
+  return fetch(
+    `${APIBASEURL}/movie/upcoming?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
+export function nowPlayingMovies() {
+  return fetch(
+    `${APIBASEURL}/movie/now_playing?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
+export function topRatedMovies() {
+  return fetch(
+    `${APIBASEURL}/movie/top_rated?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
   ).then((response) => response.json());
 }
 export function detailMovie(movieId: string) {
@@ -96,10 +112,19 @@ export function detailMovie(movieId: string) {
     `${APIBASEURL}/movie/${movieId}?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
   ).then((response) => response.json());
 }
+export function getVideos(movieId: string) {
+  return fetch(
+    `${APIBASEURL}/movie/${movieId}/videos?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
+  ).then((response) => response.json());
+}
 export function genresData() {
   return fetch(
     `${APIBASEURL}/genre/list?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
   ).then((response) => response.json());
+}
+
+export function userMovies() {
+  return fetch(`${LOCALBASEURL}/home`).then((response) => response.json());
 }
 
 export function watchData(movieId: string) {

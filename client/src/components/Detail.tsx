@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -49,27 +50,33 @@ const MovieImg = styled.div`
   margin-right: 20px;
 `;
 
-const ThumbImg = styled.div<{ movieImg: string }>`
-  background-color: black;
-  background-image: url(${(props) => props.movieImg});
-  background-size: cover;
-  background-position: center;
-`;
-
 const VideoWrap = styled.div<{ width: number }>`
   width: ${(props) => props.width}px;
   height: 100%;
   float: left;
+  position: relative;
+`;
+const ThumbImg = styled(motion.div)<{ movieImg: string }>`
+  width: 1140px;
+  height: 700px;
+  background-color: black;
+  background-image: url(${(props) => props.movieImg});
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+  left: 0;
 `;
 
-const EmbedBox = styled.div`
-  // width: 1780px;
-  width: 1130px;
+const EmbedBox = styled(motion.div)`
+  width: 1140px;
   height: 700px;
-  embed {
-    width: 100%;
-    height: 100%;
-  }
+  position: absolute;
+`;
+const Embed = styled(motion.embed)`
+  width: 1140px;
+  height: 700px;
+  position: absolute;
+  left: 1140px;
 `;
 const HomeBtn = styled.div`
   width: 100px;
@@ -426,22 +433,56 @@ const Tagline = styled.div`
   padding: 10px;
 `;
 
+const NextBtn = styled.button`
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+`;
+const PrevBtn = styled.button`
+  position: absolute;
+  bottom: 0;
+`;
+
 interface IGenres {
   id: number;
   name: string;
 }
 
+const box = {
+  start: (back: boolean) => ({
+    opacity: 0,
+
+    x: back ? -1140 : 1140,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      duration: 1,
+    },
+  },
+  exit: (back: boolean) => ({
+    opacity: 0,
+    x: back ? 1140 : -1140,
+    transition: {
+      duration: 1,
+    },
+  }),
+};
+
 const Detail = (props: any) => {
-  console.log(props);
   const { movieId } = useParams();
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
   const isLoggedIn = JSON.parse(sessionStorage.getItem("loggedIn") || "false");
   const { isLoading: anotherLoading, data: anotherMovies } = useQuery<
     IUserMovies[]
   >(["watch", "userMovies"], userMovies);
-  console.log(props);
   const [another, setAnother] = useState<IUserMovies[]>();
+  const [back, setBack] = useState(false);
+  const [length, setLength] = useState(1);
+  console.log(props, length);
   let navigator = useNavigate();
+
   useEffect(() => {
     const data = anotherMovies?.filter((movies: any) => {
       return movies._id !== movieId;
@@ -506,6 +547,19 @@ const Detail = (props: any) => {
     });
   };
 
+  const nextSlide = () => {
+    setBack(false);
+    setLength((prev) =>
+      prev === props.videos.results.length
+        ? props.videos.results.length
+        : prev + 1
+    );
+  };
+  const prevSlide = () => {
+    setBack(true);
+    setLength((prev) => (prev === 1 ? 1 : prev - 1));
+  };
+
   return (
     <>
       <VideoContainer>
@@ -530,21 +584,30 @@ const Detail = (props: any) => {
           />
         ) : (
           <MovieImg>
-            {props?.videos?.results && (
-              <VideoWrap width={(props?.videos?.results.length + 1) * 1780}>
-                {props.videos.results.map((el: any) => (
-                  <EmbedBox>
-                    <embed
+            <AnimatePresence>
+              {props?.videos?.results && (
+                <VideoWrap width={(props?.videos?.results.length + 1) * 1780}>
+                  <ThumbImg
+                    movieImg={makeImageFormat(props?.detail?.backdrop_path)}
+                  ></ThumbImg>
+                  {props.videos.results.map((el: any) => (
+                    // <EmbedBox>
+                    <Embed
+                      custom={back}
+                      variants={box}
+                      initial="start"
+                      animate="center"
+                      exit="exit"
                       title={el.name}
                       src={`https://www.youtube.com/embed/${el.key}`}
-                    ></embed>
-                  </EmbedBox>
-                ))}
-              </VideoWrap>
-            )}
-            <ThumbImg
-              movieImg={makeImageFormat(props?.detail?.backdrop_path)}
-            ></ThumbImg>
+                    ></Embed>
+                    // </EmbedBox>
+                  ))}
+                  <PrevBtn onClick={prevSlide}>prev</PrevBtn>
+                  <NextBtn onClick={nextSlide}>next</NextBtn>
+                </VideoWrap>
+              )}
+            </AnimatePresence>
           </MovieImg>
         )}
 

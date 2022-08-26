@@ -13,7 +13,7 @@ import {
   topRatedMovies,
 } from "../api";
 import { makeImageFormat } from "../until";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 const Wrapper = styled.div`
@@ -75,51 +75,131 @@ const NavText = styled.p`
   }
 `;
 
-const CardBox = styled.div`
-  width: 1200px;
+const CardBox = styled(motion.div)`
+  // width: 1200px;
+  position: relative;
   padding: 10px;
-  background: yellow;
   display: flex;
-  perspective: 500px;
+  perspective: 800px;
 `;
 
 const Card = styled(motion.div)`
-  width: 300px;
+  width: 280px;
   height: 400px;
   padding: 10px;
-  background: red;
   position: relative;
-  transition: 0.4s;
+  transition: transform 1s;
   transform-style: preserve-3d;
+  transform-origin: center right;
+  border-radius: 10px;
+  margin-right: 10px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.8);
+  transition: ease 1s;
+  &:hover {
+    transition: ease 1s, top 0.5s;
+    top: -30px;
+    transform: translateX(-100%) rotateY(-180deg);
+    box-shadow: 5px 100px 5px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
 `;
 
 const CardBack = styled.div`
+  width: 100%;
+  height: 100%;
   position: absolute;
   left: 0;
   top: 0;
-  display: flex;
-  flex-direction: column;
-  background: blue;
-  padding: 10px;
   backface-visibility: hidden;
   transform: rotateY(180deg);
+  background-color: black;
+  border-radius: 10px;
+  color: white;
 `;
-const CardFront = styled(motion.div)`
-  width: 200px;
-  height: 300px;
-  position: relative;
+
+const MoviesImg = styled.div<{ bgPhoto: string }>`
+  width: 100%;
+  height: 120px;
+  background-color: white;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center;
+`;
+
+const CardFront = styled.div<{ bgPhoto: string }>`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
   border-radius: 10px;
   overflow: hidden;
   backface-visibility: hidden;
   display: flex;
   justify-content: center;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center;
   .userMoviesTitle {
+    width: 100%;
+    padding: 0px 10px;
     position: absolute;
-    bottom: 10px;
+    bottom: 0;
     font-size: 24px;
+    text-align: center;
     font-weight: 700;
     color: white;
+    word-wrap: break-word;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.8);
   }
+`;
+
+const MoviesTitle = styled.p`
+  padding: 0px 10px;
+  // font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  word-wrap: break-word;
+`;
+const MoviesOverview = styled.p`
+  height: 100px;
+  padding: 10px;
+  font-size: 14px;
+  word-wrap: break-word;
+`;
+const MoviesAdult = styled.p`
+  padding-right: 20px;
+  font-size: 12px;
+  opacity: 0.5;
+  text-align: right;
+`;
+const MoviesGenres = styled.div`
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  // gap: 10px;
+  text-align: center;
+  font-size: 12px;
+  p {
+    margin: 0;
+    margin-top: 10px;
+  }
+`;
+
+const EtcBox = styled.div`
+  display: flex;
+  gap: 10px;
+  text-align: center;
+  padding: 5px;
+  span {
+    font-size: 12px;
+  }
+`;
+const Popularity = styled.p`
+  padding: 10px;
+`;
+const Vote = styled.p`
+  padding: 10px;
 `;
 
 const Image = styled.div<{ bgPhoto: string }>`
@@ -136,7 +216,39 @@ const ContentsTitle = styled.h3`
   font-size: 32px;
 `;
 
+const NextBtn = styled.div`
+  width: 100px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  z-index: 9;
+  background-color: rgba(0, 0, 0, 1);
+`;
+
+const box = {
+  start: {
+    opacity: 0,
+    transition: {
+      duration: 1,
+    },
+    // x: -,
+  },
+  center: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      duration: 1,
+    },
+    x: 200,
+  },
+};
+
 const Home = () => {
+  const [slide, setSlide] = useState(1);
+
   const { isLoading: userLoading, data: users } = useQuery<IUserMovies[]>(
     ["home", "userMovies"],
     userMovies
@@ -147,6 +259,12 @@ const Home = () => {
   const { isLoading: topMoviesLoading, data: topMovies } =
     useQuery<ItmdbMovies>(["home", "topMovies"], topRatedMovies);
 
+  const nextSlide = () => {
+    setSlide((prev) =>
+      prev === nowMovies?.results.length ? nowMovies?.results.length : prev + 1
+    );
+  };
+  console.log(topMovies);
   return (
     <Wrapper>
       {userLoading ? (
@@ -181,25 +299,40 @@ const Home = () => {
             <CardBox key="userMovieWrap">
               {users?.map((movie: IUserMovies) => (
                 <Card key={movie._id}>
-                  <CardFront>
-                    <Image
+                  <CardFront
+                    bgPhoto={"http://localhost:5000/" + movie.thumbUrl}
+                  >
+                    <p className="userMoviesTitle">
+                      {movie.title.length >= 15
+                        ? `${movie.title.slice(0, 15)}`
+                        : movie.title}
+                    </p>
+                    {/* <Image
                       bgPhoto={"http://localhost:5000/" + movie.thumbUrl}
-                    />{" "}
-                    <Link
-                      className="userMoviesTitle"
-                      to={`users-movies/${movie._id}`}
-                      key={movie._id}
-                    >
-                      {movie.title}
-                    </Link>
+                    />{" "} */}
                   </CardFront>
                   <CardBack>
-                    <Link to={`users-movies/${movie._id}`} key={movie._id}>
-                      {movie.title}
-                    </Link>
-                    <p>{movie.overview}</p>
-                    <p>{movie.adult}</p>
-                    <div>{movie.genres}</div>
+                    <MoviesAdult>
+                      {movie.adult ? "Adult" : "Not an adult"}
+                    </MoviesAdult>
+                    <MoviesTitle>
+                      {movie.title.length >= 33
+                        ? `${movie.title.slice(0, 33)}...`
+                        : movie.title}
+                    </MoviesTitle>
+                    <MoviesOverview>
+                      {movie.overview.length >= 122
+                        ? `${movie.overview.slice(0, 122)}...`
+                        : movie.overview}
+                    </MoviesOverview>
+                    <MoviesGenres>
+                      {movie.genres.map((el: string) =>
+                        el
+                          .split(",")
+                          .slice(0, 4)
+                          .map((el: string) => <p>{el}</p>)
+                      )}
+                    </MoviesGenres>
                   </CardBack>
                 </Card>
               ))}
@@ -208,60 +341,119 @@ const Home = () => {
               {nowMoviesLoading ? (
                 <p>dd</p>
               ) : (
-                <CardBox key="apiMovieWrap">
+                <>
                   <ContentsTitle>Now Playing Movies</ContentsTitle>
-                  {nowMovies?.results.map((movie: Iresults) => (
-                    <Link to={`now-playing-movies/${movie.id}`} key={movie.id}>
-                      <Card key={movie.id}>
-                        <CardFront>
-                          <Image
-                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
-                          />
-                        </CardFront>
-                        <CardBack>
-                          <p>
-                            {movie.adult ? "청소년관람불가" : "청소년관람가능"}
-                          </p>
-                          <p>
-                            {movie.overview.length >= 200
-                              ? `${movie.overview.substring(0, 200)}...`
-                              : movie.overview}
-                          </p>
-                        </CardBack>
-                      </Card>
-                    </Link>
-                  ))}
-                </CardBox>
+                  <AnimatePresence>
+                    <CardBox
+                      key="apiMovieWrap"
+                      variants={box}
+                      initial="start"
+                      animate="center"
+                      exit="exit"
+                    >
+                      {nowMovies?.results.map((movie: Iresults) => (
+                        <Link
+                          to={`now-playing-movies/${movie.id}`}
+                          key={movie.id}
+                        >
+                          <Card key={movie.id}>
+                            <CardFront
+                              bgPhoto={makeImageFormat(
+                                movie.poster_path,
+                                "w500"
+                              )}
+                            >
+                              {/* <Image
+                              bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                            /> */}
+                            </CardFront>
+                            <CardBack>
+                              <MoviesAdult>
+                                {movie.adult ? "Adult" : "Not an adult"}
+                              </MoviesAdult>
+                              <MoviesTitle>
+                                {movie.title.length >= 33
+                                  ? `${movie.title.slice(0, 33)}...`
+                                  : movie.title}
+                              </MoviesTitle>
+                              <MoviesOverview>
+                                {movie.overview.length >= 122
+                                  ? `${movie.overview.slice(0, 122)}...`
+                                  : movie.overview}
+                              </MoviesOverview>
+                            </CardBack>
+                          </Card>
+                        </Link>
+                      ))}
+                    </CardBox>
+                    <NextBtn onClick={nextSlide}>&gt;</NextBtn>
+                  </AnimatePresence>
+                </>
               )}
             </>
             <>
               {topMoviesLoading ? (
                 <p>dd</p>
               ) : (
-                <CardBox key="apiMovieWrap">
+                <>
                   <ContentsTitle>Top Rated Movies</ContentsTitle>
-                  {topMovies?.results.map((movie: Iresults) => (
-                    <Link to={`top-rated-movies/${movie.id}`} key={movie.id}>
-                      <Card key={movie.id}>
-                        <CardFront>
-                          <Image
+                  <CardBox key="apiMovieWrap">
+                    {topMovies?.results.map((movie: Iresults) => (
+                      <Link to={`top-rated-movies/${movie.id}`} key={movie.id}>
+                        <Card
+                          key={movie.id}
+                          variants={box}
+                          initial="start"
+                          animate="center"
+                          exit="exit"
+                          onHoverStart={nextSlide}
+                        >
+                          <CardFront
                             bgPhoto={makeImageFormat(movie.poster_path, "w500")}
-                          />
-                        </CardFront>
-                        <CardBack>
-                          <p>
-                            {movie.adult ? "청소년관람불가" : "청소년관람가능"}
-                          </p>
-                          <p>
-                            {movie.overview.length >= 200
-                              ? `${movie.overview.substring(0, 200)}...`
-                              : movie.overview}
-                          </p>
-                        </CardBack>
-                      </Card>
-                    </Link>
-                  ))}
-                </CardBox>
+                          >
+                            {/* <Image
+                              bgPhoto={makeImageFormat(
+                                movie.poster_path,
+                                "w500"
+                              )}
+                            /> */}
+                          </CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {movie.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
+                              bgPhoto={makeImageFormat(
+                                movie.backdrop_path,
+                                "w500"
+                              )}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {movie.title.length >= 33
+                                ? `${movie.title.slice(0, 33)}...`
+                                : movie.title}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {movie.overview.length >= 122
+                                ? `${movie.overview.slice(0, 122)}...`
+                                : movie.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {movie.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {movie.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
+                  </CardBox>
+                </>
               )}
             </>
           </ContentsWrapper>

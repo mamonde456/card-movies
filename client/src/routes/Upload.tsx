@@ -176,7 +176,7 @@ const Upload = () => {
     const formData = new FormData();
     formData.append("thumb", thumb.files[0]);
     formData.append("movie", movie.files[0]);
-    formData.append("userId", user._id || "");
+    formData.append("userId", user ? user._id : null);
     formData.append("title", title.value);
     formData.append("overview", overview.value);
     formData.append("adult", adult.value);

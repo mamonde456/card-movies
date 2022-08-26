@@ -19,6 +19,7 @@ export const upload = async (req, res) => {
   const isAdult = adult ? true : false;
   try {
     const movie = await Movie.create({
+      owner: user,
       thumbUrl: files.thumb[0].path,
       movieUrl: files.movie[0].path,
       title,
@@ -26,7 +27,6 @@ export const upload = async (req, res) => {
       overview,
       genres,
       createdAt: Date.now(),
-      owner: user,
     });
     await user.videos.push(movie);
     await user.save();

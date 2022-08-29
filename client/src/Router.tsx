@@ -23,8 +23,7 @@ import TopDetail from "./routes/TopDetail";
 const Router = () => {
   return (
     <>
-      <Header />
-
+      <Header></Header>
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/join" element={<Join />}></Route>

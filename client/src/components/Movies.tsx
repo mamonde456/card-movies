@@ -3,13 +3,28 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IUserMovies } from "../api";
 import { makeImageFormat } from "../until";
+import Header from "./Header";
 
-const ContentWrap = styled.div`
-  width: 1200px;
-  height: 100vh;
+const ContentWrap = styled.div<{ thumb: string }>`
+  width: 1600px;
+  height: 850px;
   margin: 0 auto;
   position: relative;
+  top: 30px;
   color: white;
+  background-color: white;
+  background-image: url(${(props) => props.thumb});
+  background-size: cover;
+  background-position: center;
+  border-radius: 30px;
+  padding: 10px;
+`;
+
+const Menu = styled.div`
+  width: 100%;
+  height: 50px;
+  padding: 10px;
+  position: relative;
 `;
 const MoviesList = styled.ul`
   counter-reset: numbering;
@@ -20,8 +35,8 @@ const MoviesList = styled.ul`
   flex-direction: column;
   gap: 10px;
   position: absolute;
-  right: 0;
-  top: 100px;
+  right: 50px;
+  top: 50px;
 `;
 
 const MoviesLi = styled.li<{ bgPhoto: string }>`
@@ -47,9 +62,10 @@ const MoviesLi = styled.li<{ bgPhoto: string }>`
   box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.5);
 `;
 
-const TxtBox = styled.p`
+const TxtBox = styled.div`
   position: absolute;
-  left: 10px;
+  left: 20px;
+  top: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -82,46 +98,52 @@ const LiText = styled.p`
   font-size: 12px;
 `;
 
-const Bg = styled.div<{ thumb: any }>`
-  width: 1400px;
-  height: 800px;
-  padding: 10px;
-  border-radius: 30px;
-  background-color: white;
-  background-image: url(${(props) => props.thumb});
-  background-size: cover;
-  background-position: center;
-  position: absolute;
-  left: 50%;
-  margin-left: -700px;
-  top: 100px;
-  z-index: -1;
-`;
+// const Bg = styled.div<{ thumb: any }>`
+//   width: 100%;
+//   height: 800px;
+//   padding: 10px;
+//   border-radius: 30px;
+
+//   z-index: -1;
+// `;
 
 const ContentBox = styled.div`
-  width: 500px;
+  width: 600px;
   padding: 10px 20px;
   border-radius: 10px;
   position: absolute;
-  bottom: 350px;
-  left: 10px;
+  bottom: 250px;
+  left: 100px;
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
 const ContentTitle = styled.h3`
   font-size: 42px;
+  word-wrap: break-word;
 `;
-const ContentText = styled.p`
+const ContentText = styled.div`
   font-size: 18px;
   word-wrap: break-word;
+`;
+const Genres = styled.p`
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  justify-content: space-evenly;
+  gap: 10px;
+  span {
+    padding: 5px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+  }
 `;
 
 const BtnText = styled.div`
   width: 200px;
   padding: 10px;
   position: absolute;
-  left: 0;
-  bottom: 200px;
+  left: 100px;
+  bottom: 150px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -175,7 +197,7 @@ const Movies = (props: any) => {
       overview: props.movies ? props.movies[0].overview : "",
       adult: props.movies ? props.movies[0].adult : false,
       genres: props.movies ? props.movies[0].genres : [],
-      createdAt: props.movies.createdAt
+      createdAt: props.movies[0].createdAt
         ? props.movies[0].createdAt
         : props.movies[0].release_date,
     });
@@ -183,7 +205,10 @@ const Movies = (props: any) => {
 
   return (
     <>
-      <ContentWrap>
+      <ContentWrap thumb={backgroundUrl.thumbUrl}>
+        <Menu>
+          <Header link={"movies"} />
+        </Menu>
         <MoviesList>
           {props.movies.slice(0, 4)?.map((movie: any) => (
             <>
@@ -208,7 +233,7 @@ const Movies = (props: any) => {
                   <LiText>
                     {movie?.release_date
                       ? movie?.release_date
-                      : movie?.createdAt}
+                      : movie?.createdAt.slice(0, 10)}
                   </LiText>
                 </TxtBox>
               </MoviesLi>
@@ -216,14 +241,24 @@ const Movies = (props: any) => {
           ))}
         </MoviesList>
         <ContentBox>
-          <ContentTitle>{backgroundUrl?.title}</ContentTitle>
+          <ContentTitle>
+            {backgroundUrl?.title.length >= 40
+              ? `${backgroundUrl?.title.slice(0, 40)}...`
+              : backgroundUrl?.title}
+          </ContentTitle>
           <ContentText>{backgroundUrl?.overview}</ContentText>
           <ContentText>
-            {backgroundUrl?.genres?.map((genre) => (
-              <span>{genre}</span>
-            ))}
+            <Genres>
+              {backgroundUrl?.genres?.map((genre: string) =>
+                genre.split(",").map((el: any) => <span>{el}</span>)
+              )}
+            </Genres>
           </ContentText>
-          <ContentText>{backgroundUrl?.createdAt}</ContentText>
+          <ContentText>
+            {props.link === "users"
+              ? backgroundUrl?.createdAt.slice(0, 10)
+              : backgroundUrl?.createdAt}
+          </ContentText>
         </ContentBox>
         <Link to={`/${props.link}-movies/${backgroundUrl.id}`}>
           <BtnText>
@@ -235,8 +270,8 @@ const Movies = (props: any) => {
             watch movie
           </BtnText>
         </Link>
+        {/* <Bg thumb={backgroundUrl.thumbUrl}></Bg> */}
       </ContentWrap>
-      <Bg thumb={backgroundUrl.thumbUrl}></Bg>
     </>
   );
 };

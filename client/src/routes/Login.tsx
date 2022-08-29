@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { loggedInState, loggedInUser } from "../atom";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -125,6 +126,7 @@ const Login = () => {
 
   return (
     <Wrapper>
+      <Header></Header>
       <Form onSubmit={onSubmit}>
         <Title>Log In</Title>
         <Box key="username">

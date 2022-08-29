@@ -23,6 +23,7 @@ export interface Iresults {
   adult: boolean;
   overview: string;
   release_date: string;
+  runtime: number;
   genre_ids: [string];
   id: number;
   original_title: string;

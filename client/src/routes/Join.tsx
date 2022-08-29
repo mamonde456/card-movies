@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -8,6 +9,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 100px;
 `;
 
 const Title = styled.h3`
@@ -128,6 +130,7 @@ const Join = () => {
 
   return (
     <Wrapper>
+      {/* <Header></Header> */}
       <Form onSubmit={onSubmit}>
         <Title>Sign up</Title>
         <Box>

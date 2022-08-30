@@ -21,6 +21,7 @@ export const join = async (req, res) => {
     name,
     email,
     password,
+    location: req.body.user.location ? req.body.user.location : "",
   });
   return res.sendStatus(200);
 };
@@ -31,10 +32,13 @@ export const login = async (req, res) => {
   } = req;
 
   const user = await User.findOne({ username });
+  //$2b$10$XOXAXWyJSl05gaW9.yNEv.5AKbzzulWB9lcjejqqqGjoxmyd0YFji
+  console.log(user.password);
   if (!user) {
     return res.status(400).send({ errorMessage: "user nothing found." });
   }
   const ok = await bcrypt.compare(password, user.password);
+  console.log(ok, password, user.password);
 
   if (!ok) {
     return res.status(400).send({ errorMessage: "wrong password" });

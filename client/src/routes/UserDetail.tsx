@@ -6,7 +6,7 @@ import { IUserMovies, userMovies, watchData } from "../api";
 import Detail from "../components/Detail";
 
 const Wrapper = styled.div`
-  padding-top: 100px;
+  padding-top: 50px;
 `;
 
 const UserDetail = () => {

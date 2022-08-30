@@ -130,7 +130,7 @@ const Join = () => {
 
   return (
     <Wrapper>
-      {/* <Header></Header> */}
+      <Header></Header>
       <Form onSubmit={onSubmit}>
         <Title>Sign up</Title>
         <Box>

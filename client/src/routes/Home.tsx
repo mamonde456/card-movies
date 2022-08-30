@@ -325,7 +325,7 @@ const Home = () => {
         <h1>Loading...</h1>
       ) : (
         <>
-          {/* <Header></Header> */}
+          <Header></Header>
           <Screen
             key="screen"
             bgPhoto={makeImageFormat(nowMovies?.results[0].backdrop_path || "")}
@@ -342,9 +342,6 @@ const Home = () => {
               </Link>
               <Link to="popular-movies">
                 <NavText>Popular movies</NavText>
-              </Link>
-              <Link to="latest-movies">
-                <NavText>The latest movie</NavText>
               </Link>
               <Link to="upcoming-movies">
                 <NavText>an upcoming movie</NavText>

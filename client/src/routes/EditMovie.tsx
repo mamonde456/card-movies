@@ -198,6 +198,7 @@ const EditMovie = () => {
     ["watch", movieId],
     () => watchData(movieId || "")
   ) as any;
+  console.log(watch);
   const [isAdult, setIsAdult] = useState(false);
   const [genres, setGenres] = useState([]) as any;
   const [isGenresChecked, setIsGenresChecked] = useState(false);

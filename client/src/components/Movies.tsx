@@ -1,9 +1,16 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { IUserMovies } from "../api";
 import { makeImageFormat } from "../until";
 import Header from "./Header";
+
+const Wrapper = styled.div`
+  width: 100%;
+  height:100%:
+  overflow: hidden;
+`;
 
 const ContentWrap = styled.div<{ thumb: string }>`
   width: 1600px;
@@ -25,18 +32,44 @@ const Menu = styled.div`
   height: 50px;
   padding: 10px;
   position: relative;
+  header {
+    background: none;
+    height: 50px;
+    position: absolute;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.8));
+  }
 `;
-const MoviesList = styled.ul`
+
+const ListWrap = styled.div`
+  width: 320px;
+  height: 780px;
+  position: absolute;
+  right: 120px;
+  top: 60px;
+  button {
+    width: 120px;
+    height: 30px;
+    position: absolute;
+    left: 50%;
+    margin-left: -60px;
+    bottom: 0px;
+    background: none;
+    border: solid 1px white;
+    color: white;
+    border-radius: 10px;
+  }
+  overflow: hidden;
+`;
+const MoviesList = styled(motion.ul)`
+  margin: 0;
   counter-reset: numbering;
   width: 320px;
-  height: 750px;
+  height: 740px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   position: absolute;
-  right: 50px;
-  top: 50px;
 `;
 
 const MoviesLi = styled.li<{ bgPhoto: string }>`
@@ -156,6 +189,18 @@ const BtnText = styled.div`
   }
 `;
 
+const slide = {
+  start: {
+    y: window.outerHeight,
+  },
+  center: {
+    y: 0,
+  },
+  exit: {
+    y: -window.outerHeight,
+  },
+};
+
 const Movies = (props: any) => {
   const [backgroundUrl, setBackgroundUrl] = useState({
     id: "",
@@ -166,6 +211,25 @@ const Movies = (props: any) => {
     genres: [],
     createdAt: "",
   });
+
+  const [isSlide, setIsSlide] = useState(false);
+  const [index, setIndex] = useState(0);
+  const offset = 4;
+  const onSlide = () => {
+    if (props?.movies) {
+      if (isSlide) return;
+      toggleSlide();
+      const total = props?.movies.length;
+      const last = Math.ceil(total / offset) - 1;
+      setIndex((prev) => (prev === last ? 0 : prev + 1));
+      console.log(total, last, index);
+    }
+  };
+
+  const toggleSlide = () => {
+    setIsSlide((prev) => !prev);
+  };
+
   const onClick = (movie: IUserMovies) => {
     const thumbUrl = movie.thumbUrl
       ? "http://localhost:5000/" + movie.thumbUrl
@@ -204,42 +268,57 @@ const Movies = (props: any) => {
   }, [props.movies]);
 
   return (
-    <>
+    <Wrapper>
       <ContentWrap thumb={backgroundUrl.thumbUrl}>
         <Menu>
           <Header link={"movies"} />
         </Menu>
-        <MoviesList>
-          {props.movies.slice(0, 4)?.map((movie: any) => (
-            <>
-              <MoviesLi
-                bgPhoto={
-                  movie?.thumbUrl
-                    ? "http://localhost:5000/" + movie?.thumbUrl
-                    : makeImageFormat(movie.backdrop_path, "w500")
-                }
-                onClick={() => onClick(movie)}
-              >
-                <IconBox>
-                  <Icon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z" />
-                  </Icon>
-                </IconBox>
-                <TxtBox>
-                  <LiTitle>{movie?.title}</LiTitle>
-                  <LiText>
-                    {movie?.release_date
-                      ? movie?.release_date
-                      : movie?.createdAt.slice(0, 10)}
-                  </LiText>
-                </TxtBox>
-              </MoviesLi>
-            </>
-          ))}
-        </MoviesList>
+        <ListWrap>
+          <AnimatePresence initial={false} onExitComplete={toggleSlide}>
+            <MoviesList
+              key={index}
+              variants={slide}
+              initial="start"
+              animate="center"
+              exit="exit"
+              transition={{ type: "tween", duration: 1 }}
+            >
+              {props.movies
+                .slice(index * offset, index * offset + offset)
+                ?.map((movie: any) => (
+                  <>
+                    <MoviesLi
+                      key={movie._id}
+                      bgPhoto={
+                        movie?.thumbUrl
+                          ? "http://localhost:5000/" + movie?.thumbUrl
+                          : makeImageFormat(movie.backdrop_path, "w500")
+                      }
+                      onClick={() => onClick(movie)}
+                    >
+                      <IconBox>
+                        <Icon
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                        >
+                          <path d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z" />
+                        </Icon>
+                      </IconBox>
+                      <TxtBox>
+                        <LiTitle>{movie?.title}</LiTitle>
+                        <LiText>
+                          {movie?.release_date
+                            ? movie?.release_date
+                            : movie?.createdAt.slice(0, 10)}
+                        </LiText>
+                      </TxtBox>
+                    </MoviesLi>
+                  </>
+                ))}
+            </MoviesList>
+          </AnimatePresence>
+          <button onClick={onSlide}>next</button>
+        </ListWrap>
         <ContentBox>
           <ContentTitle>
             {backgroundUrl?.title.length >= 40
@@ -272,7 +351,7 @@ const Movies = (props: any) => {
         </Link>
         {/* <Bg thumb={backgroundUrl.thumbUrl}></Bg> */}
       </ContentWrap>
-    </>
+    </Wrapper>
   );
 };
 

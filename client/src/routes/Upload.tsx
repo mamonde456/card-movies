@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { IUserMovies } from "../api";
 import { atomMovieDB, categoryList, loggedInUser } from "../atom";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
   padding-top: 90px;
@@ -234,6 +235,7 @@ const Upload = () => {
 
   return (
     <Wrapper>
+      <Header></Header>
       <h1>Upload Movie</h1>
       <UploadForm encType="multipart/form-data" onSubmit={onSubmit}>
         <UploadFileWrapper>

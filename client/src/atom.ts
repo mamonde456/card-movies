@@ -1,5 +1,18 @@
 import { atom } from "recoil";
 
+export interface IUser {
+  avatarUrl: string;
+  comments: [type: String];
+  email: string;
+  info: string;
+  location: string;
+  name: string;
+  password: string;
+  username: string;
+  videos: [type: String];
+  _id: string;
+}
+
 export const loggedInState = atom({
   key: "loggedIn",
   default: false,

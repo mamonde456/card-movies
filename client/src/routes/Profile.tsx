@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { userProfileData } from "../api";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
   padding-top: 100px;
@@ -24,8 +25,8 @@ const Image = styled.div<{ bgPhoto: string }>`
   background-image: url("http://localhost:5000/${(props) => props.bgPhoto}");
   background-size: cover;
   background-position: center;
-  width: 150px;
-  height: 150px;
+  width: 50px;
+  height: 50px;
   background-color: white;
   border-radius: 100px;
   position: relative;
@@ -92,6 +93,7 @@ const IconBox = styled.div`
 `;
 const Icon = styled.svg`
   padding: 8px;
+  fill: rgba(255, 255, 255, 0.8);
 `;
 const UserVideos = styled.div`
   width: 1200px;
@@ -102,6 +104,7 @@ const UserVideos = styled.div`
 
 const SectionTitle = styled.h3`
   padding: 10px;
+  color: white;
 `;
 const UserVideoList = styled.ul`
   display: grid;
@@ -148,12 +151,7 @@ const UserCommentsWrap = styled.div`
   width: 1200px;
   margin: 0 auto;
 `;
-const UserCommentsList = styled.ul`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
+
 const UserCommentLi = styled.li`
   padding: 10px;
   background-color: rgba(0, 0, 0, 0.3);
@@ -199,6 +197,7 @@ const Profile = () => {
   console.log(userData, user);
   return (
     <Wrapper>
+      <Header></Header>
       {userLoading ? (
         <div>is Loading...</div>
       ) : (
@@ -275,7 +274,7 @@ const Profile = () => {
           </UserVideos>
           <UserCommentsWrap>
             <SectionTitle>User Comments</SectionTitle>
-            <UserCommentsList>
+            <UserVideoList>
               {userData?.comments.map((comment: any) => (
                 <UserCommentLi key={comment._id}>
                   <MenuIcon
@@ -303,7 +302,7 @@ const Profile = () => {
                   </Link>
                 </UserCommentLi>
               ))}
-            </UserCommentsList>
+            </UserVideoList>
           </UserCommentsWrap>
         </>
       )}

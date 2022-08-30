@@ -15,15 +15,15 @@ import Header from "./components/Header";
 import PopMovies from "./routes/PopMovies";
 import UserDetail from "./routes/UserDetail";
 import PopDetail from "./routes/PopDetail";
-import LatesMovies from "./routes/LatestMovies";
 import UpcomingMovies from "./routes/UpcomingMovies";
 import NowDetail from "./routes/NowDetail";
 import TopDetail from "./routes/TopDetail";
+import UpcomingDetail from "./routes/UpcomingDetail";
+import LatestMovies from "./routes/LatestMovies";
 
 const Router = () => {
   return (
     <>
-      <Header></Header>
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/join" element={<Join />}></Route>
@@ -39,7 +39,7 @@ const Router = () => {
         ></Route>
         <Route path="/upload" element={<Upload />}></Route>
         <Route path="/popular-movies" element={<PopMovies />}></Route>
-        <Route path="/lates-movies" element={<LatesMovies />}></Route>
+        <Route path="/latest-movies" element={<LatestMovies />}></Route>
         <Route path="/upcoming-movies" element={<UpcomingMovies />}></Route>
         <Route path="/users-movies" element={<UserMovies />}></Route>
         <Route path="/users-movies/:movieId" element={<UserDetail />}></Route>
@@ -51,6 +51,10 @@ const Router = () => {
         <Route
           path="/top-rated-movies/:movieId"
           element={<TopDetail />}
+        ></Route>
+        <Route
+          path="/upcoming-movies/:movieId"
+          element={<UpcomingDetail />}
         ></Route>
         <Route
           path="/users-movies/:movieId/edit-movie"

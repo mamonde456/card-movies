@@ -4,16 +4,19 @@ import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { loggedInUser } from "../atom";
+import { IUser, loggedInUser } from "../atom";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
-  padding-top: 90px;
   padding-bottom: 100px;
   color: white;
   h1 {
     padding: 10px 10px 30px 10px;
     text-align: center;
   }
+`;
+const FormWrap = styled.div`
+  padding-top: 100px;
 `;
 
 const SectionTitle = styled.h3`
@@ -176,12 +179,8 @@ const ChangePasswordWrapper = styled.div`
 
 const EditProfile = () => {
   const { userId } = useParams();
-  const [user, setUser] = useRecoilState(loggedInUser) as any;
-  const data = JSON.parse(sessionStorage.getItem("user") as any);
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}") as IUser;
   let navigator = useNavigate();
-  useEffect(() => {
-    setUser(data);
-  }, []);
   const onSubmit = async (event: any) => {
     event.preventDefault();
     console.log(event);
@@ -220,11 +219,12 @@ const EditProfile = () => {
 
   return (
     <Wrapper>
-      <div>
+      <Header></Header>
+      <FormWrap>
         <UploadForm encType="multipart/form-data" onSubmit={onSubmit}>
           <UploadFileWrapper>
-            {user.avatarUrl ? (
-              <Image bgPhoto={user.avatarUrl}></Image>
+            {user?.avatarUrl ? (
+              <Image bgPhoto={user?.avatarUrl}></Image>
             ) : (
               <UserIcon
                 xmlns="http://www.w3.org/2000/svg"
@@ -292,16 +292,22 @@ const EditProfile = () => {
                 type="text"
                 id="location"
                 name="location"
+                defaultValue={user?.location}
               />
             </TitleBox>
           </TitleWrapper>
           <SectionTitle>Introduction section</SectionTitle>
           <TitleLabel htmlFor="info">Self-introduction column</TitleLabel>
-          <UploadTextArea placeholder="Introduce me." id="info" name="info" />
+          <UploadTextArea
+            placeholder="Introduce me."
+            id="info"
+            name="info"
+            defaultValue={user?.info}
+          />
 
           <UploadBtn>save</UploadBtn>
         </UploadForm>
-      </div>
+      </FormWrap>
     </Wrapper>
   );
 };

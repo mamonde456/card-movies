@@ -48,10 +48,7 @@ interface IGenres {
   id: number;
   name: string;
 }
-interface IGenres {
-  id: number;
-  name: string;
-}
+
 interface Icompanies {
   name: string;
   id: number;
@@ -62,7 +59,25 @@ interface ICountries {
   iso_3166_1: string;
   name: string;
 }
+
+interface IUser {
+  comments: [];
+  email: string;
+  info: string;
+  location: string;
+  name: string;
+  password: string;
+  username: string;
+}
+
 export interface IdetailMovie {
+  comments: [];
+  createdAt: string;
+  meta: { type: number };
+  movieUrl: string;
+  owner: IUser;
+  thumbUrl: string;
+  _id: string;
   adult: boolean;
   backdrop_path: string;
   budget: number;

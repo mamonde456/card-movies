@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -89,7 +90,10 @@ interface IUser {
   password2: number;
   location: string;
 }
-
+interface IError {
+  errorTitle?: string;
+  errorMessage: string;
+}
 const Join = () => {
   const [user, setUser] = useState<IUser>({
     username: "",
@@ -99,8 +103,10 @@ const Join = () => {
     password2: 0,
     location: "",
   });
+  const [error, setError] = useState<IError>();
+
   let navigate = useNavigate();
-  const onChange = (event: any) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { name, value },
     } = event;
@@ -124,7 +130,7 @@ const Join = () => {
       navigate("/login");
     } else if (response.status === 400) {
       const data = await response.json();
-      console.log(data.errorMessage);
+      setError(data);
     }
   };
 
@@ -143,6 +149,7 @@ const Join = () => {
             placeholder="username"
             key="username"
             name="username"
+            required
             onChange={onChange}
           />
         </Box>
@@ -155,6 +162,7 @@ const Join = () => {
           <Input
             placeholder="name"
             key="name"
+            required
             name="name"
             onChange={onChange}
           />
@@ -168,6 +176,7 @@ const Join = () => {
           <Input
             placeholder="email"
             key="email"
+            required
             name="email"
             onChange={onChange}
           />
@@ -181,6 +190,7 @@ const Join = () => {
           <Input
             placeholder="password"
             key="password"
+            required
             name="password"
             onChange={onChange}
           />
@@ -194,6 +204,7 @@ const Join = () => {
           <Input
             placeholder="confirm password"
             key="password2"
+            required
             name="password2"
             onChange={onChange}
           />
@@ -213,8 +224,8 @@ const Join = () => {
         </Box>
         <Hr />
         <Button>send</Button>
+        {error && <ErrorMsg error={error}></ErrorMsg>}
       </Form>
-      {/* <div></div> */}
     </Wrapper>
   );
 };

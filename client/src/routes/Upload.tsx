@@ -4,6 +4,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import { IUserMovies } from "../api";
 import { atomMovieDB, categoryList, loggedInUser } from "../atom";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -161,11 +162,15 @@ const UploadBtn = styled.button`
   margin-top: 50px;
   box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.5);
 `;
-
+interface IError {
+  errorTitle?: string;
+  errorMessage: string;
+}
 const Upload = () => {
   const category = useRecoilValue(categoryList) as any;
   const [isChecked, setIsChecked] = useState(false);
   const [isGenres, setIsGenres] = useState([]) as any;
+  const [error, setError] = useState<IError>();
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
   let navigator = useNavigate();
   const onSubmit = async (event: any) => {
@@ -174,6 +179,7 @@ const Upload = () => {
     const {
       currentTarget: { thumb, movie, title, overview, adult },
     } = event;
+
     const formData = new FormData();
     formData.append("thumb", thumb.files[0]);
     formData.append("movie", movie.files[0]);
@@ -187,13 +193,14 @@ const Upload = () => {
       body: formData,
     });
     if (response.status === 200) {
-      navigator("/");
+      navigator("/movies");
     } else if (response.status === 400) {
       const data = await response.json();
-      console.log(data);
+      setError(data);
     }
   };
   const onChange = (event: any) => {
+    //target nextsibling 인식 못함
     const {
       target: { name, value },
     } = event;
@@ -216,22 +223,18 @@ const Upload = () => {
     );
   };
 
-  const handleCheckedValue = (el: any, value: any, isChecked: any) => {
+  const handleCheckedValue = (el: any, value: string, isChecked: boolean) => {
     if (isChecked) {
       setIsGenres([...isGenres, value]);
       el.style.backgroundColor = "white";
       el.children[0].style.fill = "black";
-    } else if (!isChecked && isGenres.find((el: any) => el === value)) {
-      const filter = isGenres.filter((el: any) => el !== value);
+    } else if (!isChecked && isGenres.find((el: string) => el === value)) {
+      const filter = isGenres.filter((el: string) => el !== value);
       setIsGenres([...filter]);
       el.style.backgroundColor = "transparent";
       el.children[0].style.fill = "white";
     }
   };
-
-  // const onRemove = (item: any) => {
-  //   setGenres(genres.filter((el: any) => el !== item));
-  // };
 
   return (
     <Wrapper>
@@ -331,6 +334,7 @@ const Upload = () => {
           ))}
         </GenreBox>
         <UploadBtn>save</UploadBtn>
+        {error && <ErrorMsg error={error}></ErrorMsg>}
       </UploadForm>
     </Wrapper>
   );

@@ -98,6 +98,24 @@ export interface IdetailMovie {
   vote_count: number;
 }
 
+interface IVideo {
+  id: string;
+  iso_639_1: string;
+  iso_3166_1: string;
+  key: string;
+  name: string;
+  official: boolean;
+  published_at: string;
+  site: string;
+  size: number;
+  type: string;
+}
+
+export interface IVideos {
+  id: number;
+  results: IVideo[];
+}
+
 export function popularMovies() {
   return fetch(
     `${APIBASEURL}/movie/popular?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`

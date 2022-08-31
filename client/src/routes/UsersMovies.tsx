@@ -17,7 +17,6 @@ const UsersMovies = () => {
     ["home", "userMovies"],
     userMovies
   );
-  console.log(data);
   return (
     <Wrapper>
       {isLoading ? (

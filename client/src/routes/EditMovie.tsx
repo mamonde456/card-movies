@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import styled from "styled-components";
-import { editMovieData, watchData } from "../api";
-import { atomMovieDB, categoryList } from "../atom";
+import styled, { CSSProperties } from "styled-components";
+import { editMovieData, IdetailMovie, watchData } from "../api";
+import { atomMovieDB, categoryList, IGenres } from "../atom";
+import ErrorMsg from "../components/ErrorMsg";
+import Header from "../components/Header";
 
 const Wrapper = styled.div`
   padding-top: 90px;
@@ -179,6 +181,17 @@ const UploadBtn = styled.button`
   box-shadow: 2px 5px 5px rgba(0, 0, 0, 0.5);
 `;
 
+const ErrorBox = styled.div`
+  width: 200px;
+  padding: 10px;
+  background-color: black;
+  border-radius: 10px;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  margin-left: -100px;
+  z-index: 9;
+`;
 interface IWatchmeta {
   state: {
     _id: string;
@@ -197,8 +210,7 @@ const EditMovie = () => {
   const { isLoading: watchLoading, data: watch } = useQuery(
     ["watch", movieId],
     () => watchData(movieId || "")
-  ) as any;
-  console.log(watch);
+  );
   const [isAdult, setIsAdult] = useState(false);
   const [genres, setGenres] = useState([]) as any;
   const [isGenresChecked, setIsGenresChecked] = useState(false);
@@ -206,12 +218,12 @@ const EditMovie = () => {
   useEffect(() => {
     const isTrue = watch?.adult;
     setIsAdult(isTrue || false);
-    // setGenres(movie?.genres);
   }, [watch]);
   const onCheckedElement = ({ target }: any) => {
     setIsGenresChecked(!isGenresChecked);
     handleCheckedValue(
       target.previousSibling.previousSibling,
+      //input element 요소가 아니어서 에러가 남
       target.value,
       target.checked
     );
@@ -236,35 +248,23 @@ const EditMovie = () => {
     setGenres([...filter]);
   };
 
-  // const onChange = ({ target }: any, isAdult: any) => {
-  //   console.log(target.checked, isAdult);
-  //   target.checked = !isAdult;
-  //   if (target.checked === true) {
-  //     target.nextSibling.style.backgroundColor = "white";
-  //     target.nextSibling.children[0].style.fill = "black";
-  //   } else if (target.checked === false) {
-  //     target.nextSibling.style.backgroundColor = "transparent";
-  //     target.nextSibling.children[0].style.fill = "white";
-  //   }
-  // };
-
   const onSubmit = async (event: any) => {
+    //React.FormEvent<HTMLFormElement> title value not string
     event.preventDefault();
     const {
-      target: { title, overview, adult, thumb, movie },
+      currentTarget: { title, overview, adult, thumb, movie },
     } = event;
     const formData = new FormData();
     formData.append("id", movieId ? movieId : watch._id);
-    formData.append("title", title.value ? title.value : watch.title);
+    formData.append("title", title?.value ? title?.value : watch.title);
     formData.append(
       "overview",
       overview.value ? overview.value : watch.overview
     );
-    formData.append("genres", genres ? genres : watch.genres); // state
+    formData.append("genres", genres.length !== 0 ? genres : watch.genres); // state
     formData.append("adult", adult.value ? adult.checked : watch.adult);
     formData.append("thumb", thumb.files[0] ? thumb.files[0] : watch.thumbUrl);
     formData.append("movie", movie.files[0] ? movie.files[0] : watch.movieUrl);
-    console.log("test");
     const response = await fetch(
       `http://localhost:5000/api/movies/${movieId}/edit-movie`,
       {
@@ -275,7 +275,7 @@ const EditMovie = () => {
     const data = response.json();
     if (response.status === 200) {
       console.log(data);
-      navigator(`/movies/${movieId}`);
+      navigator(`/users-movies/${movieId}`);
     } else if (response.status === 400) {
       console.log(data);
     }
@@ -283,111 +283,142 @@ const EditMovie = () => {
 
   return (
     <Wrapper>
-      <h1>edit movie</h1>
-      <UploadForm encType="multipart/form-data" onSubmit={onSubmit}>
-        <UploadFileWrapper>
-          <SectionTitle>File Uploader</SectionTitle>
-          <p>Thumbnail</p>
-          <UploadFileBox>
-            <UploadFile name="thumb" id="thumb" type="file" accept="image/*" />
-            <UploadFileBtn htmlFor="thumb">
-              search file...
-              <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                <path d="M256 0v128h128L256 0zM224 128L224 0H48C21.49 0 0 21.49 0 48v416C0 490.5 21.49 512 48 512h288c26.51 0 48-21.49 48-48V160h-127.1C238.3 160 224 145.7 224 128zM288.1 344.1C284.3 349.7 278.2 352 272 352s-12.28-2.344-16.97-7.031L216 305.9V408c0 13.25-10.75 24-24 24s-24-10.75-24-24V305.9l-39.03 39.03c-9.375 9.375-24.56 9.375-33.94 0s-9.375-24.56 0-33.94l80-80c9.375-9.375 24.56-9.375 33.94 0l80 80C298.3 320.4 298.3 335.6 288.1 344.1z" />
-              </Icon>
-            </UploadFileBtn>
-          </UploadFileBox>
-          <p>Movie</p>
-          <UploadFileBox>
-            <UploadFile name="movie" id="movie" type="file" accept="video/*" />
-            <UploadFileBtn htmlFor="movie">
-              search file...
-              <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                <path d="M256 0v128h128L256 0zM224 128L224 0H48C21.49 0 0 21.49 0 48v416C0 490.5 21.49 512 48 512h288c26.51 0 48-21.49 48-48V160h-127.1C238.3 160 224 145.7 224 128zM288.1 344.1C284.3 349.7 278.2 352 272 352s-12.28-2.344-16.97-7.031L216 305.9V408c0 13.25-10.75 24-24 24s-24-10.75-24-24V305.9l-39.03 39.03c-9.375 9.375-24.56 9.375-33.94 0s-9.375-24.56 0-33.94l80-80c9.375-9.375 24.56-9.375 33.94 0l80 80C298.3 320.4 298.3 335.6 288.1 344.1z" />
-              </Icon>
-            </UploadFileBtn>
-          </UploadFileBox>
-        </UploadFileWrapper>
-        <SectionTitle>Movie Information</SectionTitle>
-        <TitleWrapper>
-          <TitleBox>
-            <TitleLabel htmlFor="title">Movie title</TitleLabel>
-            <UploadInput
-              id="title"
-              name="title"
-              placeholder="title"
-              type="text"
-              defaultValue={watch?.title || ""}
+      <Header></Header>
+      {watchLoading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <>
+          <h1>edit movie</h1>
+          <UploadForm encType="multipart/form-data" onSubmit={onSubmit}>
+            <UploadFileWrapper>
+              <SectionTitle>File Uploader</SectionTitle>
+              <p>Thumbnail</p>
+              <UploadFileBox>
+                <UploadFile
+                  name="thumb"
+                  id="thumb"
+                  type="file"
+                  accept="image/*"
+                />
+                <UploadFileBtn htmlFor="thumb">
+                  search file...
+                  <Icon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 384 512"
+                  >
+                    <path d="M256 0v128h128L256 0zM224 128L224 0H48C21.49 0 0 21.49 0 48v416C0 490.5 21.49 512 48 512h288c26.51 0 48-21.49 48-48V160h-127.1C238.3 160 224 145.7 224 128zM288.1 344.1C284.3 349.7 278.2 352 272 352s-12.28-2.344-16.97-7.031L216 305.9V408c0 13.25-10.75 24-24 24s-24-10.75-24-24V305.9l-39.03 39.03c-9.375 9.375-24.56 9.375-33.94 0s-9.375-24.56 0-33.94l80-80c9.375-9.375 24.56-9.375 33.94 0l80 80C298.3 320.4 298.3 335.6 288.1 344.1z" />
+                  </Icon>
+                </UploadFileBtn>
+              </UploadFileBox>
+              <p>Movie</p>
+              <UploadFileBox>
+                <UploadFile
+                  name="movie"
+                  id="movie"
+                  type="file"
+                  accept="video/*"
+                />
+                <UploadFileBtn htmlFor="movie">
+                  search file...
+                  <Icon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 384 512"
+                  >
+                    <path d="M256 0v128h128L256 0zM224 128L224 0H48C21.49 0 0 21.49 0 48v416C0 490.5 21.49 512 48 512h288c26.51 0 48-21.49 48-48V160h-127.1C238.3 160 224 145.7 224 128zM288.1 344.1C284.3 349.7 278.2 352 272 352s-12.28-2.344-16.97-7.031L216 305.9V408c0 13.25-10.75 24-24 24s-24-10.75-24-24V305.9l-39.03 39.03c-9.375 9.375-24.56 9.375-33.94 0s-9.375-24.56 0-33.94l80-80c9.375-9.375 24.56-9.375 33.94 0l80 80C298.3 320.4 298.3 335.6 288.1 344.1z" />
+                  </Icon>
+                </UploadFileBtn>
+              </UploadFileBox>
+            </UploadFileWrapper>
+            <SectionTitle>Movie Information</SectionTitle>
+            <TitleWrapper>
+              <TitleBox>
+                <TitleLabel htmlFor="title">Movie title</TitleLabel>
+                <UploadInput
+                  id="title"
+                  name="title"
+                  placeholder="title"
+                  type="text"
+                  defaultValue={watch?.title}
+                />
+              </TitleBox>
+              <AdultLable htmlFor="adult">
+                <p>Adult</p>
+                <AdultInput
+                  id="adult"
+                  name="adult"
+                  value="adult"
+                  type="checkbox"
+                  checked={isAdult}
+                  onChange={() => setIsAdult(!isAdult)}
+                />
+                <CheckBox
+                  style={
+                    isAdult
+                      ? { backgroundColor: "white" }
+                      : { backgroundColor: "transparent" }
+                  }
+                >
+                  <Icon
+                    style={isAdult ? { fill: "black" } : { fill: "white" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 448 512"
+                  >
+                    <path d="M438.6 105.4C451.1 117.9 451.1 138.1 438.6 150.6L182.6 406.6C170.1 419.1 149.9 419.1 137.4 406.6L9.372 278.6C-3.124 266.1-3.124 245.9 9.372 233.4C21.87 220.9 42.13 220.9 54.63 233.4L159.1 338.7L393.4 105.4C405.9 92.88 426.1 92.88 438.6 105.4H438.6z" />
+                  </Icon>
+                </CheckBox>
+              </AdultLable>
+            </TitleWrapper>
+            <TitleLabel htmlFor="overview">Movie overview</TitleLabel>
+            <UploadTextArea
+              id="overview"
+              name="overview"
+              placeholder="overview"
+              defaultValue={watch?.overview || ""}
             />
-          </TitleBox>
-          <AdultLable htmlFor="adult">
-            <p>Adult</p>
-            <AdultInput
-              id="adult"
-              name="adult"
-              value="adult"
-              type="checkbox"
-              checked={isAdult}
-              onChange={() => setIsAdult(!isAdult)}
-            />
-            <CheckBox
-              style={
-                isAdult
-                  ? { backgroundColor: "white" }
-                  : { backgroundColor: "transparent" }
-              }
-            >
-              <Icon
-                style={isAdult ? { fill: "black" } : { fill: "white" }}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 448 512"
-              >
-                <path d="M438.6 105.4C451.1 117.9 451.1 138.1 438.6 150.6L182.6 406.6C170.1 419.1 149.9 419.1 137.4 406.6L9.372 278.6C-3.124 266.1-3.124 245.9 9.372 233.4C21.87 220.9 42.13 220.9 54.63 233.4L159.1 338.7L393.4 105.4C405.9 92.88 426.1 92.88 438.6 105.4H438.6z" />
-              </Icon>
-            </CheckBox>
-          </AdultLable>
-        </TitleWrapper>
-        <TitleLabel htmlFor="overview">Movie overview</TitleLabel>
-        <UploadTextArea
-          id="overview"
-          name="overview"
-          placeholder="overview"
-          defaultValue={watch?.overview || ""}
-        />
 
-        <TitleLabel>Genres</TitleLabel>
-        <ChoseGenresWrapper>
-          <ChoseGenresTitle>List of genres you chose</ChoseGenresTitle>
-          <ChoseGenresList>
-            {watch?.genres?.map((el: any) =>
-              el
-                .split(",")
-                .map((el: any) => <ChoseGenresLi>{el}</ChoseGenresLi>)
+            <TitleLabel>Genres</TitleLabel>
+            <ChoseGenresWrapper>
+              <ChoseGenresTitle>List of genres you chose</ChoseGenresTitle>
+              <ChoseGenresList>
+                {watch?.genres?.map((el: string) =>
+                  el
+                    .split(",")
+                    .map((el: string) => <ChoseGenresLi>{el}</ChoseGenresLi>)
+                )}
+              </ChoseGenresList>
+            </ChoseGenresWrapper>
+            <GenreBox>
+              {categoryAtom.map((item: any) => (
+                <GenreLabel key={item.id} htmlFor={item.id}>
+                  <CheckBox>
+                    <Icon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 448 512"
+                    >
+                      <path d="M438.6 105.4C451.1 117.9 451.1 138.1 438.6 150.6L182.6 406.6C170.1 419.1 149.9 419.1 137.4 406.6L9.372 278.6C-3.124 266.1-3.124 245.9 9.372 233.4C21.87 220.9 42.13 220.9 54.63 233.4L159.1 338.7L393.4 105.4C405.9 92.88 426.1 92.88 438.6 105.4H438.6z" />
+                    </Icon>
+                  </CheckBox>
+                  <p>{item.data}</p>
+                  <GenreInput
+                    name="genres"
+                    id={item.id}
+                    value={item.data}
+                    type="checkbox"
+                    onChange={(e) => onCheckedElement(e)}
+                    // defaultChecked={isGenres.includes(item.data) ? true : false}
+                  />
+                </GenreLabel>
+              ))}
+            </GenreBox>
+            <UploadBtn>save</UploadBtn>
+            {watch?.errorMessage && (
+              <ErrorBox>
+                <ErrorMsg error={watch} />
+              </ErrorBox>
             )}
-          </ChoseGenresList>
-        </ChoseGenresWrapper>
-        <GenreBox>
-          {categoryAtom.map((item: any) => (
-            <GenreLabel key={item.id} htmlFor={item.id}>
-              <CheckBox>
-                <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                  <path d="M438.6 105.4C451.1 117.9 451.1 138.1 438.6 150.6L182.6 406.6C170.1 419.1 149.9 419.1 137.4 406.6L9.372 278.6C-3.124 266.1-3.124 245.9 9.372 233.4C21.87 220.9 42.13 220.9 54.63 233.4L159.1 338.7L393.4 105.4C405.9 92.88 426.1 92.88 438.6 105.4H438.6z" />
-                </Icon>
-              </CheckBox>
-              <p>{item.data}</p>
-              <GenreInput
-                name="genres"
-                id={item.id}
-                value={item.data}
-                type="checkbox"
-                onChange={(e) => onCheckedElement(e)}
-                // defaultChecked={isGenres.includes(item.data) ? true : false}
-              />
-            </GenreLabel>
-          ))}
-        </GenreBox>
-        <UploadBtn>save</UploadBtn>
-      </UploadForm>
+          </UploadForm>
+        </>
+      )}
     </Wrapper>
   );
 };

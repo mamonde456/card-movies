@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { IUser, loggedInUser } from "../atom";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -176,9 +177,13 @@ const ChangePasswordWrapper = styled.div`
     }
   }
 `;
-
+interface IError {
+  errorTitle?: string;
+  errorMessage: string;
+}
 const EditProfile = () => {
   const { userId } = useParams();
+  const [error, setError] = useState<IError>();
   const user = JSON.parse(sessionStorage.getItem("user") || "{}") as IUser;
   let navigator = useNavigate();
   const onSubmit = async (event: any) => {
@@ -213,7 +218,7 @@ const EditProfile = () => {
       sessionStorage.setItem("user", JSON.stringify(data));
       navigator(`/users/${userId}`);
     } else if (response.status === 400) {
-      console.log(data);
+      setError(data);
     }
   };
 
@@ -306,6 +311,7 @@ const EditProfile = () => {
           />
 
           <UploadBtn>save</UploadBtn>
+          {error && <ErrorMsg error={error} />}
         </UploadForm>
       </FormWrap>
     </Wrapper>

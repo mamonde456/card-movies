@@ -12,11 +12,11 @@ const NowDetail = () => {
   const { isLoading: detailLoading, data: detailData } = useQuery<IdetailMovie>(
     ["detail", movieId],
     () => detailMovie(movieId || "")
-  ) as any;
+  );
   const { isLoading: videosLoading, data: videosData } = useQuery<IdetailMovie>(
     ["videos", movieId],
     () => getVideos(movieId || "")
-  ) as any;
+  );
   return (
     <Wrapper>
       {detailLoading ? (

@@ -44,7 +44,12 @@ export const atomMovieDB = atom<IMovie[]>({
   default: [],
 });
 
-export const categoryList = atom({
+export interface IGenres {
+  id: number;
+  data: string;
+}
+
+export const categoryList = atom<IGenres[]>({
   key: "genres",
   default: [
     { id: 1, data: "action" },

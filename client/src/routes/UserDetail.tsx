@@ -14,7 +14,7 @@ const UserDetail = () => {
   const { isLoading: watchLoading, data: watch } = useQuery(
     ["watch", movieId],
     async () => await watchData(movieId || "")
-  ) as any;
+  );
 
   return (
     <Wrapper>

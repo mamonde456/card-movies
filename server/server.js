@@ -25,7 +25,6 @@ app.use(localsMiddlewaer);
 
 app.use("/uploads", express.static("uploads"));
 
-//app 라우터로 리팩토링
 app.use("/api", apiRouter);
 
 export default app;

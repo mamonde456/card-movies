@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div``;
@@ -39,10 +40,14 @@ const Btn = styled.button`
   background-color: #395b64;
   border-radius: 10px;
 `;
-
+interface IError {
+  errorTitle?: string;
+  errorMessage: string;
+}
 const ChangePassword = () => {
   const { userId } = useParams();
   const navigator = useNavigate();
+  const [error, setError] = useState<IError>();
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const {
@@ -66,8 +71,7 @@ const ChangePassword = () => {
       navigator(`/users/${userId}/edit-profile`);
     } else if (response.status === 400) {
       const data = await response.json();
-      console.log(data);
-      navigator(`/users/${userId}/edit-profile`);
+      setError(data);
     }
   };
   return (
@@ -77,21 +81,25 @@ const ChangePassword = () => {
         <PageTitle>Change Password</PageTitle>
         <Form onSubmit={onSubmit}>
           <Input
+            required
             name="oldPassword"
             placeholder="Existing Password"
             type="password"
           ></Input>
           <Input
+            required
             name="newPassword"
             placeholder="A New Password"
             type="password"
           ></Input>
           <Input
+            required
             name="confirmPassword"
             placeholder="Confirm New Password"
             type="password"
           ></Input>
           <Btn>Change Password</Btn>
+          {error && <ErrorMsg error={error} />}
         </Form>
       </FormWrap>
     </Wrapper>

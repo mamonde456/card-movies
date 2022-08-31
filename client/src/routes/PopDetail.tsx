@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { detailMovie, getVideos, IdetailMovie } from "../api";
+import { detailMovie, getVideos, IdetailMovie, IVideos } from "../api";
 import Detail from "../components/Detail";
 
 const Wrapper = styled.div`
@@ -13,11 +13,11 @@ const PopDetail = () => {
   const { isLoading: detailLoading, data: detailData } = useQuery<IdetailMovie>(
     ["detail", movieId],
     () => detailMovie(movieId || "")
-  ) as any;
-  const { isLoading: videosLoading, data: videosData } = useQuery<IdetailMovie>(
+  );
+  const { isLoading: videosLoading, data: videosData } = useQuery<IVideos>(
     ["videos", movieId],
     () => getVideos(movieId || "")
-  ) as any;
+  );
   return (
     <Wrapper>
       {detailLoading ? (

@@ -20,11 +20,12 @@ import Header from "../components/Header";
 const Wrapper = styled.div`
   width: 100%;
   overflow: hidden;
+  padding-bottom: 300px;
 `;
 
 const Screen = styled.div<{ bgPhoto: string }>`
   width: 100%;
-  height: 720px;
+  height: 800px;
   background: black;
   background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)),
     url(${(props) => props.bgPhoto});
@@ -54,12 +55,16 @@ const ScreenOverview = styled.p`
 `;
 
 const ContentsWrapper = styled.div`
-  margin-top: 720px;
+  margin-top: 800px;
 `;
 
-const Nav = styled.div``;
+const Nav = styled.div`
+  height: 700px;
+  padding-top: 50px;
+`;
+
 const NavText = styled.p`
-  height: 150px;
+  height: 200px;
   padding: 0px;
   margin: 0px;
   font-size: 62px;
@@ -253,6 +258,16 @@ const Icon = styled.svg`
   fill: white;
 `;
 
+const CardScrollWrap = styled.div`
+  width: 100%;
+  height: 500vh;
+  background: red;
+`;
+const Sticky = styled.div`
+  position: sticky;
+  top: 0;
+`;
+
 const box = {
   start: {
     x: window.outerWidth + 200,
@@ -272,6 +287,8 @@ const Home = () => {
   const [topIsSlide, setTopIsSlide] = useState(false);
   const [userIndex, setUserIndex] = useState(0);
   const [userIsSlide, setUserIsSlide] = useState(false);
+  const [popularIndex, setPopularIndex] = useState(0);
+  const [popularIsSlide, setPopularIsSlide] = useState(false);
 
   const { isLoading: userLoading, data: users } = useQuery<IUserMovies[]>(
     ["home", "userMovies"],
@@ -282,6 +299,10 @@ const Home = () => {
   console.log(nowMovies);
   const { isLoading: topMoviesLoading, data: topMovies } =
     useQuery<ItmdbMovies>(["home", "topMovies"], topRatedMovies);
+  const { isLoading: popularLoading, data: popular } = useQuery<ItmdbMovies>(
+    ["home", "popular"],
+    popularMovies
+  );
   const offset = 6;
   const nextSlide = (name: string) => {
     if (name === "now") {
@@ -308,6 +329,14 @@ const Home = () => {
         const lastMovies = Math.ceil(totalMovies / offset) - 1;
         setUserIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
       }
+    } else if (name === "popular") {
+      if (popular) {
+        if (popularIsSlide) return;
+        toggleSlide("popular");
+        const totalMovies = popular?.results?.length;
+        const lastMovies = Math.ceil(totalMovies / offset) - 1;
+        setPopularIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
+      }
     }
   };
   const toggleSlide = (name: string) => {
@@ -317,8 +346,11 @@ const Home = () => {
       setTopIsSlide((prev) => !prev);
     } else if (name === "user") {
       setUserIsSlide((prev) => !prev);
+    } else if (name === "popular") {
+      setPopularIsSlide((prev) => !prev);
     }
   };
+
   return (
     <Wrapper>
       {userLoading ? (
@@ -331,22 +363,26 @@ const Home = () => {
             bgPhoto={makeImageFormat(nowMovies?.results[0].backdrop_path || "")}
           >
             <TextBox>
-              <ScreenTitle>{nowMovies?.results[0].title}</ScreenTitle>
+              <Link to={"/now-playing-movies/" + nowMovies?.results[0].id}>
+                {" "}
+                <ScreenTitle>{nowMovies?.results[0].title}</ScreenTitle>
+              </Link>
               <ScreenOverview>{nowMovies?.results[0].overview}</ScreenOverview>
             </TextBox>
           </Screen>
           <ContentsWrapper key="contentswrap">
             <Nav>
-              <Link to="users-movies">
+              <Link to="/users-movies">
                 <NavText>User-created movies</NavText>
               </Link>
-              <Link to="popular-movies">
+              <Link to="/popular-movies">
                 <NavText>Popular movies</NavText>
               </Link>
-              <Link to="upcoming-movies">
+              <Link to="/upcoming-movies">
                 <NavText>an upcoming movie</NavText>
               </Link>
             </Nav>
+
             <>
               {userLoading ? (
                 <p>loading</p>
@@ -368,42 +404,49 @@ const Home = () => {
                       {users
                         ?.slice(offset * userIndex, offset * userIndex + offset)
                         .map((movie: IUserMovies) => (
-                          <Card key={movie._id}>
-                            <CardFront
-                              bgPhoto={
-                                "http://localhost:5000/" + movie.thumbUrl
-                              }
-                            >
-                              <p className="userMoviesTitle">
-                                {movie.title.length >= 15
-                                  ? `${movie.title.slice(0, 15)}`
-                                  : movie.title}
-                              </p>
-                            </CardFront>
-                            <CardBack>
-                              <MoviesAdult>
-                                {movie.adult ? "Adult" : "Not an adult"}
-                              </MoviesAdult>
-                              <MoviesTitle>
-                                {movie.title.length >= 33
-                                  ? `${movie.title.slice(0, 33)}...`
-                                  : movie.title}
-                              </MoviesTitle>
-                              <MoviesOverview>
-                                {movie.overview.length >= 122
-                                  ? `${movie.overview.slice(0, 122)}...`
-                                  : movie.overview}
-                              </MoviesOverview>
-                              <MoviesGenres>
-                                {movie.genres.map((el: string) =>
-                                  el
-                                    .split(",")
-                                    .slice(0, 4)
-                                    .map((el: string) => <p>{el}</p>)
-                                )}
-                              </MoviesGenres>
-                            </CardBack>
-                          </Card>
+                          <Link to={"/users-movies/" + movie._id}>
+                            <Card key={movie._id}>
+                              <CardFront
+                                bgPhoto={
+                                  "http://localhost:5000/" + movie.thumbUrl
+                                }
+                              >
+                                <p className="userMoviesTitle">
+                                  {movie.title.length >= 15
+                                    ? `${movie.title.slice(0, 15)}`
+                                    : movie.title}
+                                </p>
+                              </CardFront>
+                              <CardBack>
+                                <MoviesAdult>
+                                  {movie.adult ? "Adult" : "Not an adult"}
+                                </MoviesAdult>
+                                <MoviesImg
+                                  bgPhoto={
+                                    "http://localhost:5000/" + movie.thumbUrl
+                                  }
+                                ></MoviesImg>
+                                <MoviesTitle>
+                                  {movie.title.length >= 33
+                                    ? `${movie.title.slice(0, 33)}...`
+                                    : movie.title}
+                                </MoviesTitle>
+                                <MoviesOverview>
+                                  {movie.overview.length >= 122
+                                    ? `${movie.overview.slice(0, 122)}...`
+                                    : movie.overview}
+                                </MoviesOverview>
+                                <MoviesGenres>
+                                  {movie.genres.map((el: string) =>
+                                    el
+                                      .split(",")
+                                      .slice(0, 4)
+                                      .map((el: string) => <p>{el}</p>)
+                                  )}
+                                </MoviesGenres>
+                              </CardBack>
+                            </Card>
+                          </Link>
                         ))}
                     </CardBox>
                   </AnimatePresence>
@@ -419,8 +462,90 @@ const Home = () => {
               )}
             </>
             <>
+              {popularLoading ? (
+                <p>Loading...</p>
+              ) : (
+                <SlideWrapper>
+                  <ContentsTitle>Popular Movies</ContentsTitle>
+                  <AnimatePresence
+                    initial={false}
+                    onExitComplete={() => toggleSlide("popular")}
+                  >
+                    <CardBox
+                      key={popularIndex}
+                      variants={box}
+                      initial="start"
+                      animate="center"
+                      exit="exit"
+                      transition={{ type: "tween", duration: 1 }}
+                    >
+                      {popular?.results
+                        .slice(
+                          offset * popularIndex,
+                          offset * popularIndex + offset
+                        )
+                        .map((movie: Iresults) => (
+                          <Link
+                            to={`/now-playing-movies/${movie.id}`}
+                            key={movie.id}
+                          >
+                            <Card key={movie.id}>
+                              <CardFront
+                                bgPhoto={makeImageFormat(
+                                  movie.poster_path,
+                                  "w500"
+                                )}
+                              ></CardFront>
+                              <CardBack>
+                                <MoviesAdult>
+                                  {movie.adult ? "Adult" : "Not an adult"}
+                                </MoviesAdult>
+                                <MoviesImg
+                                  bgPhoto={makeImageFormat(
+                                    movie.backdrop_path,
+                                    "w500"
+                                  )}
+                                ></MoviesImg>
+                                <MoviesTitle>
+                                  {movie.title.length >= 33
+                                    ? `${movie.title.slice(0, 33)}...`
+                                    : movie.title}
+                                </MoviesTitle>
+                                <MoviesOverview>
+                                  {movie.overview.length >= 122
+                                    ? `${movie.overview.slice(0, 122)}...`
+                                    : movie.overview}
+                                </MoviesOverview>
+                                <EtcBox>
+                                  <Popularity>
+                                    <span>Popularity: </span>
+                                    {movie.popularity}
+                                  </Popularity>
+                                  <Vote>
+                                    <span>Vote Average: </span>
+                                    {movie.vote_average}
+                                  </Vote>
+                                </EtcBox>
+                              </CardBack>
+                            </Card>
+                          </Link>
+                        ))}
+                    </CardBox>
+                    <NextBtn onClick={() => nextSlide("popular")}>
+                      <Icon
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 320 512"
+                      >
+                        <path d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z" />
+                      </Icon>
+                    </NextBtn>
+                  </AnimatePresence>
+                </SlideWrapper>
+              )}
+            </>
+            <>
               {nowMoviesLoading ? (
-                <p>dd</p>
+                <p>Loading...</p>
               ) : (
                 <SlideWrapper>
                   <ContentsTitle>Now Playing Movies</ContentsTitle>
@@ -440,7 +565,7 @@ const Home = () => {
                         .slice(offset * nowIndex, offset * nowIndex + offset)
                         .map((movie: Iresults) => (
                           <Link
-                            to={`now-playing-movies/${movie.id}`}
+                            to={`/now-playing-movies/${movie.id}`}
                             key={movie.id}
                           >
                             <Card key={movie.id}>
@@ -499,7 +624,7 @@ const Home = () => {
             </>
             <>
               {topMoviesLoading ? (
-                <p>dd</p>
+                <p>Loading...</p>
               ) : (
                 <SlideWrapper>
                   <AnimatePresence
@@ -519,7 +644,7 @@ const Home = () => {
                         .slice(topIndex * offset, topIndex * offset + offset)
                         .map((movie: Iresults) => (
                           <Link
-                            to={`top-rated-movies/${movie.id}`}
+                            to={`/top-rated-movies/${movie.id}`}
                             key={movie.id}
                           >
                             <Card>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { loggedInState, loggedInUser } from "../atom";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -76,15 +77,15 @@ const Icon = styled.svg`
   font-size: 18px;
 `;
 
-interface ILogin {
-  username: string;
-  password: number;
+interface IError {
+  errorTitle?: string;
+  errorMessage: string;
 }
 
 const Login = () => {
   const [isLogin, setIsLogin] = useRecoilState(loggedInState);
+  const [error, setError] = useState<IError>();
   let navigate = useNavigate();
-
   // login userInfo post
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -104,29 +105,20 @@ const Login = () => {
       }),
     });
     const data = await response.json();
-    console.log(data);
     if (response.status === 200) {
       sessionStorage.setItem("loggedIn", data.loggedIn);
       sessionStorage.setItem("user", JSON.stringify(data.loggedInUser));
       setIsLogin(true);
-      navigate("/");
+      navigate("/movies");
     } else if (response.status === 400) {
-      console.log(data.errorMessage);
+      setError(data);
     }
   };
-  // const onChange = (e: any) => {
-  //   const {
-  //     target: { name, value },
-  //   } = e;
-  //   setUser({
-  //     ...user,
-  //     [name]: value,
-  //   });
-  // };
 
   return (
     <Wrapper>
       <Header></Header>
+      {/* <Msg></Msg> */}
       <Form onSubmit={onSubmit}>
         <Title>Log In</Title>
         <Box key="username">
@@ -156,6 +148,7 @@ const Login = () => {
           />
         </Box>
         <Button>log in</Button>
+        {error && <ErrorMsg error={error}></ErrorMsg>}
       </Form>
     </Wrapper>
   );

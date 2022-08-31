@@ -20,12 +20,14 @@ import NowDetail from "./routes/NowDetail";
 import TopDetail from "./routes/TopDetail";
 import UpcomingDetail from "./routes/UpcomingDetail";
 import LatestMovies from "./routes/LatestMovies";
+import Intro from "./routes/Intro";
 
 const Router = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />}></Route>
+        <Route path="/" element={<Intro />}></Route>
+        <Route path="/movies" element={<Home />}></Route>
         <Route path="/join" element={<Join />}></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/users/:userId" element={<Profile />}></Route>

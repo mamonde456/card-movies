@@ -9,12 +9,17 @@ export const join = async (req, res) => {
   } = req;
 
   if (password !== password2) {
-    return res.end();
+    return res.status(400).send({
+      errorMessage: "Password and password verification do not match.",
+    });
   }
   const exists = await User.exists({ username });
   if (exists) {
-    console.log("no");
-    return res.end();
+    return res.status(400).send({ errorMessage: "User name already used." });
+  }
+  const emailExists = await User.exists({ email });
+  if (emailExists) {
+    return res.status(400).send({ errorMessage: "Email already used." });
   }
   await User.create({
     username,
@@ -33,12 +38,11 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ username });
   //$2b$10$XOXAXWyJSl05gaW9.yNEv.5AKbzzulWB9lcjejqqqGjoxmyd0YFji
-  console.log(user.password);
+  console.log(await bcrypt.hash(password, 10));
   if (!user) {
     return res.status(400).send({ errorMessage: "user nothing found." });
   }
   const ok = await bcrypt.compare(password, user.password);
-  console.log(ok, password, user.password);
 
   if (!ok) {
     return res.status(400).send({ errorMessage: "wrong password" });
@@ -72,20 +76,26 @@ export const editProfile = async (req, res) => {
     file,
   } = req;
   const user = await User.findById(userId);
-  const updateUser = await User.findByIdAndUpdate(
-    userId,
-    {
-      avatarUrl: file ? file.path : user.avatarUrl,
-      username,
-      name,
-      email,
-      location,
-      info,
-    },
-    { new: true }
-  );
-
-  return res.status(200).send(updateUser);
+  if (!user) {
+    return res.status(400).send({ errorMessage: "Profile update failed." });
+  }
+  try {
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        avatarUrl: file ? file.path : user.avatarUrl,
+        username,
+        name,
+        email,
+        location,
+        info,
+      },
+      { new: true }
+    );
+    return res.status(200).send(updateUser);
+  } catch (error) {
+    return res.status(400).send({ errorMessage: "Profile update failed." });
+  }
 };
 
 export const changePassword = async (req, res) => {
@@ -93,7 +103,7 @@ export const changePassword = async (req, res) => {
 
   const user = await User.findById(userId);
   if (!user) {
-    return res.status(400).send({ errorMessage: "user noting found." });
+    return res.status(400).send({ errorMessage: "Password change failed." });
   }
   const ok = await bcrypt.compare(oldPassword, user.password);
   if (!ok) {

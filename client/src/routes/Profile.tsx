@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { userProfileData } from "../api";
+import { IUserMovies, userProfileData } from "../api";
+import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -187,14 +188,25 @@ const MenuIcon = styled.svg`
   cursor: pointer;
 `;
 
+const ErrorBox = styled.div`
+  width: 200px;
+  padding: 10px;
+  background-color: black;
+  border-radius: 10px;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  margin-left: -100px;
+  z-index: 9;
+`;
+
 const Profile = () => {
   const { userId } = useParams();
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
   const { isLoading: userLoading, data: userData } = useQuery(
     ["user-propfile", userId],
     () => userProfileData(userId || "")
-  ) as any;
-  console.log(userData, user);
+  );
   return (
     <Wrapper>
       <Header></Header>
@@ -202,108 +214,117 @@ const Profile = () => {
         <div>is Loading...</div>
       ) : (
         <>
-          {" "}
-          <UserInfo>
-            <UserBox>
-              {userData.avatarUrl ? (
-                <Image bgPhoto={userData.avatarUrl}></Image>
-              ) : (
-                <UserIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                >
-                  <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
-                </UserIcon>
-              )}
-              <UserTitle>
-                <Name>{userData.name}</Name>
-                <Username>@{userData.username}</Username>
-              </UserTitle>
-            </UserBox>
-            <Intro>{userData.info}</Intro>
-            <UserEtc>
-              <EtcBox>
-                <IconBox>
-                  <Icon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path d="M464 64C490.5 64 512 85.49 512 112C512 127.1 504.9 141.3 492.8 150.4L275.2 313.6C263.8 322.1 248.2 322.1 236.8 313.6L19.2 150.4C7.113 141.3 0 127.1 0 112C0 85.49 21.49 64 48 64H464zM217.6 339.2C240.4 356.3 271.6 356.3 294.4 339.2L512 176V384C512 419.3 483.3 448 448 448H64C28.65 448 0 419.3 0 384V176L217.6 339.2z" />
-                  </Icon>
-                </IconBox>
-                <Email>{userData.email}</Email>
-              </EtcBox>
-              <EtcBox>
-                <IconBox>
-                  <Icon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 384 512"
-                  >
-                    <path d="M168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2H168.3zM192 256C227.3 256 256 227.3 256 192C256 156.7 227.3 128 192 128C156.7 128 128 156.7 128 192C128 227.3 156.7 256 192 256z" />
-                  </Icon>
-                </IconBox>
-                <Location>{userData.location}</Location>
-              </EtcBox>
-            </UserEtc>
-            {String(user._id) === String(userId) ? (
-              <EditBtn>
-                <Link to="edit-profile">edit Profile</Link>
-              </EditBtn>
-            ) : null}
-          </UserInfo>
-          <UserVideos>
-            <SectionTitle>User Movies</SectionTitle>
-            <UserVideoList>
-              {userData?.videos?.map((el: any) => (
-                <UserVideosLi key={el._id}>
-                  <MenuIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 128 512"
-                  >
-                    <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
-                  </MenuIcon>
-                  <Link to={`/movies/${el._id}`}>
-                    <VideoImage
-                      bgPhoto={`http://localhost:5000/${el.thumbUrl}`}
-                    ></VideoImage>
-                    <VideoTitle>{el.title}</VideoTitle>
-                  </Link>
-                </UserVideosLi>
-              ))}
-            </UserVideoList>
-          </UserVideos>
-          <UserCommentsWrap>
-            <SectionTitle>User Comments</SectionTitle>
-            <UserVideoList>
-              {userData?.comments.map((comment: any) => (
-                <UserCommentLi key={comment._id}>
-                  <MenuIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 128 512"
-                  >
-                    <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
-                  </MenuIcon>
-                  <Link to={`/movies/${comment.videos}`}>
-                    <CommentImage>
-                      {userData.avatarUrl ? (
-                        <Image bgPhoto={userData.avatarUrl}></Image>
-                      ) : (
-                        <UserIcon
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 512 512"
-                        >
-                          <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
-                        </UserIcon>
-                      )}
-                      <CommentName>{comment.name}</CommentName>
-                    </CommentImage>
-                    <CommentText>{comment.text}</CommentText>
-                    <CommentAt>{comment.createdAt}</CommentAt>
-                  </Link>
-                </UserCommentLi>
-              ))}
-            </UserVideoList>
-          </UserCommentsWrap>
+          {userData && (
+            <>
+              <UserInfo>
+                <UserBox>
+                  {userData.avatarUrl ? (
+                    <Image bgPhoto={userData.avatarUrl}></Image>
+                  ) : (
+                    <UserIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 512 512"
+                    >
+                      <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                    </UserIcon>
+                  )}
+                  <UserTitle>
+                    <Name>{userData.name}</Name>
+                    <Username>@{userData.username}</Username>
+                  </UserTitle>
+                </UserBox>
+                <Intro>{userData.info}</Intro>
+                <UserEtc>
+                  <EtcBox>
+                    <IconBox>
+                      <Icon
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                      >
+                        <path d="M464 64C490.5 64 512 85.49 512 112C512 127.1 504.9 141.3 492.8 150.4L275.2 313.6C263.8 322.1 248.2 322.1 236.8 313.6L19.2 150.4C7.113 141.3 0 127.1 0 112C0 85.49 21.49 64 48 64H464zM217.6 339.2C240.4 356.3 271.6 356.3 294.4 339.2L512 176V384C512 419.3 483.3 448 448 448H64C28.65 448 0 419.3 0 384V176L217.6 339.2z" />
+                      </Icon>
+                    </IconBox>
+                    <Email>{userData.email}</Email>
+                  </EtcBox>
+                  <EtcBox>
+                    <IconBox>
+                      <Icon
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 384 512"
+                      >
+                        <path d="M168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2H168.3zM192 256C227.3 256 256 227.3 256 192C256 156.7 227.3 128 192 128C156.7 128 128 156.7 128 192C128 227.3 156.7 256 192 256z" />
+                      </Icon>
+                    </IconBox>
+                    <Location>{userData.location}</Location>
+                  </EtcBox>
+                </UserEtc>
+                {String(user._id) === String(userId) ? (
+                  <EditBtn>
+                    <Link to="edit-profile">edit Profile</Link>
+                  </EditBtn>
+                ) : null}
+              </UserInfo>
+              <UserVideos>
+                <SectionTitle>User Movies</SectionTitle>
+                <UserVideoList>
+                  {userData?.videos?.map((el: IUserMovies) => (
+                    <UserVideosLi key={el._id}>
+                      <MenuIcon
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 128 512"
+                      >
+                        <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
+                      </MenuIcon>
+                      <Link to={`/movies/${el._id}`}>
+                        <VideoImage
+                          bgPhoto={`http://localhost:5000/${el.thumbUrl}`}
+                        ></VideoImage>
+                        <VideoTitle>{el.title}</VideoTitle>
+                      </Link>
+                    </UserVideosLi>
+                  ))}
+                </UserVideoList>
+              </UserVideos>
+              <UserCommentsWrap>
+                <SectionTitle>User Comments</SectionTitle>
+                <UserVideoList>
+                  {userData?.comments?.map((comment: any) => (
+                    <UserCommentLi key={comment._id}>
+                      <MenuIcon
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 128 512"
+                      >
+                        <path d="M64 360C94.93 360 120 385.1 120 416C120 446.9 94.93 472 64 472C33.07 472 8 446.9 8 416C8 385.1 33.07 360 64 360zM64 200C94.93 200 120 225.1 120 256C120 286.9 94.93 312 64 312C33.07 312 8 286.9 8 256C8 225.1 33.07 200 64 200zM64 152C33.07 152 8 126.9 8 96C8 65.07 33.07 40 64 40C94.93 40 120 65.07 120 96C120 126.9 94.93 152 64 152z" />
+                      </MenuIcon>
+                      <Link to={`/movies/${comment.videos}`}>
+                        <CommentImage>
+                          {userData.avatarUrl ? (
+                            <Image bgPhoto={userData.avatarUrl}></Image>
+                          ) : (
+                            <UserIcon
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 512 512"
+                            >
+                              <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z" />
+                            </UserIcon>
+                          )}
+                          <CommentName>{comment.name}</CommentName>
+                        </CommentImage>
+                        <CommentText>{comment.text}</CommentText>
+                        <CommentAt>{comment.createdAt}</CommentAt>
+                      </Link>
+                    </UserCommentLi>
+                  ))}
+                </UserVideoList>
+              </UserCommentsWrap>
+            </>
+          )}
+
+          {userData?.errorMessage && (
+            <ErrorBox>
+              <ErrorMsg error={userData} />
+            </ErrorBox>
+          )}
         </>
       )}
     </Wrapper>

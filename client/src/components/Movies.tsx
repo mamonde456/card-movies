@@ -2,8 +2,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { IUserMovies } from "../api";
+import { Iresults, IUserMovies } from "../api";
 import { makeImageFormat } from "../until";
+import ErrorMsg from "./ErrorMsg";
 import Header from "./Header";
 
 const Wrapper = styled.div`
@@ -189,6 +190,18 @@ const BtnText = styled.div`
   }
 `;
 
+const ErrorBox = styled.div`
+  width: 200px;
+  padding: 10px;
+  background-color: black;
+  border-radius: 10px;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  margin-left: -100px;
+  z-index: 9;
+`;
+
 const slide = {
   start: {
     y: window.outerHeight,
@@ -202,6 +215,7 @@ const slide = {
 };
 
 const Movies = (props: any) => {
+  console.log(props);
   const [backgroundUrl, setBackgroundUrl] = useState({
     id: "",
     thumbUrl: "",
@@ -239,7 +253,7 @@ const Movies = (props: any) => {
     const adult = movie.adult;
     const genres = movie.genres ? movie.genres : [];
     const createdAt = movie.createdAt ? movie.createdAt : movie.release_date;
-    const id = movie._id ? movie._id : movie.id;
+    const id = movie._id ? movie?._id : movie?.id;
 
     setBackgroundUrl({
       id,
@@ -253,8 +267,8 @@ const Movies = (props: any) => {
   };
   useEffect(() => {
     setBackgroundUrl({
-      id: props.link === "users" ? props.movies[0]._id : props.movies[0].id,
-      thumbUrl: props.movies[0].thumbUrl
+      id: props.link === "users" ? props.movies[0]?._id : props.movies[0].id,
+      thumbUrl: props.movies[0]?.thumbUrl
         ? "http://localhost:5000/" + props.movies[0].thumbUrl
         : makeImageFormat(props?.movies[0]?.backdrop_path),
       title: props.movies ? props.movies[0].title : "",
@@ -285,7 +299,7 @@ const Movies = (props: any) => {
             >
               {props.movies
                 .slice(index * offset, index * offset + offset)
-                ?.map((movie: any) => (
+                ?.map((movie: IUserMovies) => (
                   <>
                     <MoviesLi
                       key={movie._id}
@@ -329,7 +343,7 @@ const Movies = (props: any) => {
           <ContentText>
             <Genres>
               {backgroundUrl?.genres?.map((genre: string) =>
-                genre.split(",").map((el: any) => <span>{el}</span>)
+                genre.split(",").map((el: string) => <span>{el}</span>)
               )}
             </Genres>
           </ContentText>
@@ -349,8 +363,12 @@ const Movies = (props: any) => {
             watch movie
           </BtnText>
         </Link>
-        {/* <Bg thumb={backgroundUrl.thumbUrl}></Bg> */}
       </ContentWrap>
+      {props?.movies?.errorMessage && (
+        <ErrorBox>
+          <ErrorMsg error={props?.movies} />
+        </ErrorBox>
+      )}
     </Wrapper>
   );
 };

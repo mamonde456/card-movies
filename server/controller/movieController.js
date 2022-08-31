@@ -15,7 +15,14 @@ export const upload = async (req, res) => {
     body: { title, overview, adult, genres, userId },
     files,
   } = req;
+
+  if (!genres) {
+    return res.status(400).send({ errorMessage: "Please select a genre." });
+  }
   const user = await User.findById(userId);
+  if (!user) {
+    return res.status(400).send({ errorMessage: "user nothing found." });
+  }
   const isAdult = adult ? true : false;
   try {
     const movie = await Movie.create({
@@ -32,7 +39,7 @@ export const upload = async (req, res) => {
     await user.save();
     return res.sendStatus(200);
   } catch (err) {
-    return res.status(400).send(err);
+    return res.status(400).send({ errorMessage: "Failed to upload movie." });
   }
 };
 
@@ -60,6 +67,9 @@ export const editMovie = async (req, res) => {
     files,
   } = req;
   const movie = await Movie.findById(id);
+  if (!movie) {
+    return res.status(400).send({ errorMessage: "File update failed." });
+  }
   try {
     await Movie.findByIdAndUpdate(
       id,
@@ -82,7 +92,7 @@ export const editMovie = async (req, res) => {
 
 export const comments = async (req, res) => {
   const {
-    body: { userId, movieId, value },
+    body: { userId, movieId, comment },
   } = req;
 
   const user = await User.findById(userId);
@@ -93,19 +103,19 @@ export const comments = async (req, res) => {
   if (!movie) {
     return res.status(400).send({ errorMessage: "movie nothing fonud" });
   }
-  const comment = await Comment.create({
+  const userComment = await Comment.create({
     avatarUrl: user.avatarUrl,
     name: user.name,
-    text: value,
+    text: comment,
     owner: userId,
     videos: movieId,
   });
-  user.comments.push(comment);
-  movie.comments.push(comment);
+  user.comments.push(userComment);
+  movie.comments.push(userComment);
   await user.save();
   await movie.save();
 
-  return res.status(200).send(comment);
+  return res.status(200).send(userComment);
 };
 
 export const deleteMovie = async (req, res) => {

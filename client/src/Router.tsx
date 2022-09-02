@@ -21,13 +21,18 @@ import TopDetail from "./routes/TopDetail";
 import UpcomingDetail from "./routes/UpcomingDetail";
 import LatestMovies from "./routes/LatestMovies";
 import Intro from "./routes/Intro";
+import Tv from "./routes/Tv";
+import Movie from "./routes/Movie";
+import TVDetail from "./components/TVDeatil";
 
 const Router = () => {
   return (
     <>
       <Routes>
         <Route path="/" element={<Intro />}></Route>
-        <Route path="/movies" element={<Home />}></Route>
+        <Route path="/home" element={<Home />}></Route>
+        <Route path="/tv" element={<Tv />}></Route>
+        <Route path="/movie" element={<Movie />}></Route>
         <Route path="/join" element={<Join />}></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/users/:userId" element={<Profile />}></Route>
@@ -62,6 +67,7 @@ const Router = () => {
           path="/users-movies/:movieId/edit-movie"
           element={<EditMovie />}
         ></Route>
+        <Route path="/tv/:tvId" element={<TVDetail />}></Route>
       </Routes>
     </>
   );

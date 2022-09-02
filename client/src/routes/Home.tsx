@@ -258,15 +258,6 @@ const Icon = styled.svg`
   fill: white;
 `;
 
-const CardScrollWrap = styled.div`
-  width: 100%;
-  height: 500vh;
-  background: red;
-`;
-const Sticky = styled.div`
-  position: sticky;
-  top: 0;
-`;
 
 const box = {
   start: {

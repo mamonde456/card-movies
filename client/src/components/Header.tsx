@@ -117,7 +117,13 @@ const Header = ({ link }: IProps) => {
           </MenuBar>
           <NavList>
             <NavLi>
-              <Link to="/movies">home</Link>
+              <Link to="/home">Home</Link>
+            </NavLi>
+            <NavLi>
+              <Link to="/movie">Movie</Link>
+            </NavLi>
+            <NavLi>
+              <Link to="/tv">TV</Link>
             </NavLi>
             {loggedIn ? (
               <>

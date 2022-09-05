@@ -17,22 +17,51 @@ import { makeImageFormat } from "../until";
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
+  overflow: hidden;
 `;
 
 const Screen = styled.div<{ bgPhoto: string }>`
   width: 100%;
   height: 800px;
   background: black;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)),
+  background-image: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.6),
+      rgba(0, 0, 0, 0.5)
+    ),
     url(${(props) => props.bgPhoto});
   background-size: cover;
   background-position: center;
   position: absolute;
   left: 0;
-  top: 0px;
   color: white;
   display: flex;
   align-items: center;
+  &::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: linear-gradient(
+      0deg,
+      #2c3333 0,
+      hsla(180, 7%, 19%, 0.987) 1.62%,
+      hsla(180, 7%, 19%, 0.951) 3.1%,
+      hsla(180, 7%, 19%, 0.896) 4.5%,
+      hsla(180, 7%, 19%, 0.825) 5.8%,
+      hsla(180, 7%, 19%, 0.741) 7.06%,
+      hsla(180, 7%, 19%, 0.648) 8.24%,
+      hsla(180, 7%, 19%, 0.55) 9.42%,
+      hsla(180, 7%, 19%, 0.45) 10.58%,
+      hsla(180, 7%, 19%, 0.352) 11.76%,
+      hsla(180, 7%, 19%, 0.259) 12.94%,
+      hsla(180, 7%, 19%, 0.175) 14.2%,
+      hsla(180, 7%, 19%, 0.104) 15.5%,
+      hsla(180, 7%, 19%, 0.049) 16.9%,
+      hsla(180, 7%, 19%, 0.013) 18.38%,
+      hsla(180, 7%, 19%, 0) 20%
+    );
+  }
 `;
 
 const TextBox = styled.div`
@@ -52,30 +81,6 @@ const ScreenOverview = styled.p`
 
 const ContentsWrapper = styled.div`
   margin-top: 800px;
-`;
-
-const Nav = styled.div`
-  height: 700px;
-  padding-top: 50px;
-`;
-
-const NavText = styled.p`
-  height: 200px;
-  padding: 0px;
-  margin: 0px;
-  font-size: 62px;
-  color: white;
-  text-indent: 250px;
-  line-height: 150px;
-  border-bottom: solid 1px white;
-  transition: 0.5s ease;
-  &:first-child {
-    border-top: solid 1px white;
-  }
-  &:hover {
-    text-indent: 500px;
-    color: #54bab9;
-  }
 `;
 
 const CardBox = styled(motion.div)`
@@ -506,7 +511,7 @@ const Tv = () => {
                         </Link>
                       ))}
                   </CardBox>
-                  <NextBtn onClick={() => nextSlide("to")}>
+                  <NextBtn onClick={() => nextSlide("today")}>
                     <Icon
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 320 512"

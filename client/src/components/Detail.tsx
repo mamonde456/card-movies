@@ -341,11 +341,18 @@ const SnsIcon = styled.svg`
 `;
 
 const VideoCommentsWrap = styled.div`
+  margin-top: 80px;
   display: flex;
-  // align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 50px;
+`;
+const CommentTitle = styled.p`
+  width: 1200px;
+  margin: 0 auto;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
 `;
 
 const CommentsFormWrap = styled.div`
@@ -410,6 +417,7 @@ const CommentsList = styled.ul`
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 `;
 const CommentsLi = styled.li`
   display: flex;
@@ -421,13 +429,17 @@ const CommentsLi = styled.li`
 const CommentText = styled.div`
   width: 100%;
   padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+  font-size: 18px;
 `;
 const CommentOwner = styled.p`
   margin: 0;
   margin-bottom: 10px;
+  font-size: 12px;
   span {
     margin-left: 10px;
-    font-size: 12px;
     color: rgba(255, 255, 255, 0.5);
   }
 `;
@@ -580,6 +592,7 @@ const Detail = (props: any) => {
     IUserMovies[]
   >(["watch", "userMovies"], userMovies);
   const [another, setAnother] = useState<IUserMovies[]>();
+  const [anotherLength, setALength] = useState(0);
   const { register, setValue, handleSubmit } = useForm<IForm>();
   let navigator = useNavigate();
 
@@ -588,6 +601,7 @@ const Detail = (props: any) => {
       return movies._id !== movieId;
     });
     setAnother(data);
+    setALength(data?.length ? data.length : 0);
     setUser(loggedInUser);
   }, [movieId]);
 
@@ -906,43 +920,68 @@ const Detail = (props: any) => {
                         <NotingFonud>loading...</NotingFonud>
                       </AnotherWrap>
                     ) : (
-                      <AnimatePresence
-                        initial={false}
-                        onExitComplete={() => toggleSlide("another")}
-                      >
-                        <AnotherWrap key="anotherMovie">
-                          <AnotherTitle>Another Video</AnotherTitle>
-                          <AnotherVideo
-                            key={anotherIndex}
-                            variants={small}
-                            initial="start"
-                            animate="center"
-                            exit="exit"
-                            transition={{ type: "tween", duration: 1 }}
+                      <AnotherWrap key="anotherMovie">
+                        <AnotherTitle>
+                          Another Video ({anotherLength})
+                        </AnotherTitle>
+                        <div
+                          style={
+                            anotherLength === 0
+                              ? { display: "block" }
+                              : { display: "none" }
+                          }
+                        >
+                          <NotingFonud>Noting Found.</NotingFonud>
+                        </div>
+                        <div
+                          style={
+                            anotherLength >= 1
+                              ? { display: "block" }
+                              : { display: "none" }
+                          }
+                        >
+                          {" "}
+                          <AnimatePresence
+                            initial={false}
+                            onExitComplete={() => toggleSlide("another")}
                           >
-                            {another
-                              ?.slice(
-                                offset * anotherIndex,
-                                offset * anotherIndex + offset
-                              )
-                              .map((movie) => (
-                                <Link to={`/${props.link}-movies/${movie._id}`}>
-                                  <Images
-                                    key={movie._id}
-                                    bgPhoto={
-                                      "http://localhost:5000/" + movie.thumbUrl
-                                    }
+                            <AnotherVideo
+                              key={anotherIndex}
+                              variants={small}
+                              initial="start"
+                              animate="center"
+                              exit="exit"
+                              transition={{ type: "tween", duration: 1 }}
+                            >
+                              {another
+                                ?.slice(
+                                  offset * anotherIndex,
+                                  offset * anotherIndex + offset
+                                )
+                                .map((movie) => (
+                                  <Link
+                                    to={`/${props.link}-movies/${movie._id}`}
                                   >
-                                    <p>{movie.title}</p>
-                                  </Images>
-                                </Link>
-                              ))}
-                          </AnotherVideo>
-                          <AnotherNextBtn onClick={() => nextSlide("another")}>
-                            next
-                          </AnotherNextBtn>
-                        </AnotherWrap>
-                      </AnimatePresence>
+                                    <Images
+                                      key={movie._id}
+                                      bgPhoto={
+                                        "http://localhost:5000/" +
+                                        movie.thumbUrl
+                                      }
+                                    >
+                                      <p>{movie.title}</p>
+                                    </Images>
+                                  </Link>
+                                ))}
+                            </AnotherVideo>
+                            <AnotherNextBtn
+                              onClick={() => nextSlide("another")}
+                            >
+                              next
+                            </AnotherNextBtn>
+                          </AnimatePresence>
+                        </div>
+                      </AnotherWrap>
                     )}
                   </>
                 )}
@@ -1016,6 +1055,9 @@ const Detail = (props: any) => {
           </Box>
           {props.link === "users" && (
             <VideoCommentsWrap key="comments">
+              <CommentTitle>
+                Comment ({props?.detail?.comments.length})
+              </CommentTitle>
               {isLoggedIn && (
                 <CommentsFormWrap>
                   <CommentForm onSubmit={handleSubmit(onSubmit)}>
@@ -1065,7 +1107,9 @@ const Detail = (props: any) => {
 
                         <CommentText>
                           <CommentOwner>
-                            {comment?.name} <span>{comment?.createdAt}</span>
+                            {comment?.name}{" "}
+                            <span>{comment?.createdAt.slice(0, 10)}</span>
+                            <span>{comment?.createdAt.slice(11, 19)}</span>
                           </CommentOwner>
                           <span>{comment?.text}</span>
                         </CommentText>

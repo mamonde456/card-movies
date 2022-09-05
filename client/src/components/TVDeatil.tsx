@@ -16,8 +16,10 @@ import Header from "./Header";
 import { useForm } from "react-hook-form";
 import { IUser } from "../atom";
 import ErrorMsg from "./ErrorMsg";
+
 const Wrapper = styled.div`
-  padding-bottom: 100px;
+  padding-top: 100px;
+  // padding-bottom: 100px;
 `;
 
 const VideoWrap = styled.div`
@@ -96,15 +98,6 @@ const ThumbImg = styled(motion.div)<{ movieImg: string }>`
   transition: 0.5s ease;
 `;
 
-const EmbedBox = styled(motion.div)`
-  width: 1140px;
-  height: 700px;
-`;
-const Embed = styled(motion.embed)`
-  width: 1140px;
-  height: 700px;
-  float: left;
-`;
 const HomeBtn = styled.div`
   width: 100px;
   height: 50px;

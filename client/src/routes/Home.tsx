@@ -17,7 +17,7 @@ import {
 } from "../api";
 import { makeImageFormat } from "../until";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 
 const Wrapper = styled.div`
@@ -295,14 +295,7 @@ const UpOverview = styled.p`
 `;
 
 const Home = () => {
-  const [nowIndex, setNowIndex] = useState(0);
-  const [nowIsSlide, setNowIsSlide] = useState(false);
-  const [topIndex, setTopIndex] = useState(0);
-  const [topIsSlide, setTopIsSlide] = useState(false);
-  const [userIndex, setUserIndex] = useState(0);
-  const [userIsSlide, setUserIsSlide] = useState(false);
-  const [popularIndex, setPopularIndex] = useState(0);
-  const [popularIsSlide, setPopularIsSlide] = useState(false);
+  const [index, setIndex] = useState(0);
 
   const { isLoading: userLoading, data: users } = useQuery<IUserMovies[]>(
     ["home", "userMovies"],
@@ -330,54 +323,9 @@ const Home = () => {
     tvPopular
   );
 
-  const offset = 6;
-  const nextSlide = (name: string) => {
-    if (name === "now") {
-      if (nowMovies) {
-        if (nowIsSlide) return;
-        toggleSlide("now");
-        const totalMovies = nowMovies?.results.length;
-        const lastMovies = Math.ceil(totalMovies / offset) - 1;
-        setNowIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
-      }
-    } else if (name === "top") {
-      if (topMovies) {
-        if (topIsSlide) return;
-        toggleSlide("top");
-        const totalMovies = topMovies?.results.length;
-        const lastMovies = Math.ceil(totalMovies / offset) - 1;
-        setTopIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
-      }
-    } else if (name === "user") {
-      if (users) {
-        if (userIsSlide) return;
-        toggleSlide("user");
-        const totalMovies = users?.length;
-        const lastMovies = Math.ceil(totalMovies / offset) - 1;
-        setUserIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
-      }
-    } else if (name === "popular") {
-      if (popular) {
-        if (popularIsSlide) return;
-        toggleSlide("popular");
-        const totalMovies = popular?.results?.length;
-        const lastMovies = Math.ceil(totalMovies / offset) - 1;
-        setPopularIndex((prev) => (prev === lastMovies ? 0 : prev + 1));
-      }
-    }
-  };
-  const toggleSlide = (name: string) => {
-    if (name === "now") {
-      setNowIsSlide((prev) => !prev);
-    } else if (name === "top") {
-      setTopIsSlide((prev) => !prev);
-    } else if (name === "user") {
-      setUserIsSlide((prev) => !prev);
-    } else if (name === "popular") {
-      setPopularIsSlide((prev) => !prev);
-    }
-  };
-
+  useEffect(() => {
+    setIndex(users?.length ? users?.length : 0);
+  }, []);
   return (
     <Wrapper>
       <Header></Header>
@@ -407,10 +355,9 @@ const Home = () => {
                 </SlideWrapper>
               ) : (
                 <SlideWrapper>
-                  <CardBox>
-                    {users
-                      ?.slice(offset * userIndex, offset * userIndex + offset)
-                      .map((movie: IUserMovies) => (
+                  {index >= 1 ? (
+                    <CardBox>
+                      {users?.slice(0, 6).map((movie: IUserMovies) => (
                         <Link to={"/users-movies/" + movie._id}>
                           <Card key={movie._id}>
                             <CardFront
@@ -455,7 +402,10 @@ const Home = () => {
                           </Card>
                         </Link>
                       ))}
-                  </CardBox>
+                    </CardBox>
+                  ) : (
+                    <IsLoading>User Video Noting Found.</IsLoading>
+                  )}
                 </SlideWrapper>
               )}
             </>
@@ -468,57 +418,49 @@ const Home = () => {
               ) : (
                 <SlideWrapper>
                   <CardBox>
-                    {popular?.results
-                      .slice(
-                        offset * popularIndex,
-                        offset * popularIndex + offset
-                      )
-                      .map((movie: Iresults) => (
-                        <Link
-                          to={`/now-playing-movies/${movie.id}`}
-                          key={movie.id}
-                        >
-                          <Card key={movie.id}>
-                            <CardFront
+                    {popular?.results.slice(0, 6).map((movie: Iresults) => (
+                      <Link
+                        to={`/now-playing-movies/${movie.id}`}
+                        key={movie.id}
+                      >
+                        <Card key={movie.id}>
+                          <CardFront
+                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                          ></CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {movie.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
                               bgPhoto={makeImageFormat(
-                                movie.poster_path,
+                                movie.backdrop_path,
                                 "w500"
                               )}
-                            ></CardFront>
-                            <CardBack>
-                              <MoviesAdult>
-                                {movie.adult ? "Adult" : "Not an adult"}
-                              </MoviesAdult>
-                              <MoviesImg
-                                bgPhoto={makeImageFormat(
-                                  movie.backdrop_path,
-                                  "w500"
-                                )}
-                              ></MoviesImg>
-                              <MoviesTitle>
-                                {movie.title.length >= 33
-                                  ? `${movie.title.slice(0, 33)}...`
-                                  : movie.title}
-                              </MoviesTitle>
-                              <MoviesOverview>
-                                {movie.overview.length >= 122
-                                  ? `${movie.overview.slice(0, 122)}...`
-                                  : movie.overview}
-                              </MoviesOverview>
-                              <EtcBox>
-                                <Popularity>
-                                  <span>Popularity: </span>
-                                  {movie.popularity}
-                                </Popularity>
-                                <Vote>
-                                  <span>Vote Average: </span>
-                                  {movie.vote_average}
-                                </Vote>
-                              </EtcBox>
-                            </CardBack>
-                          </Card>
-                        </Link>
-                      ))}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {movie.title.length >= 33
+                                ? `${movie.title.slice(0, 33)}...`
+                                : movie.title}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {movie.overview.length >= 122
+                                ? `${movie.overview.slice(0, 122)}...`
+                                : movie.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {movie.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {movie.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
                   </CardBox>
                 </SlideWrapper>
               )}
@@ -532,54 +474,49 @@ const Home = () => {
               ) : (
                 <SlideWrapper>
                   <CardBox>
-                    {nowMovies?.results
-                      .slice(offset * nowIndex, offset * nowIndex + offset)
-                      .map((movie: Iresults) => (
-                        <Link
-                          to={`/now-playing-movies/${movie.id}`}
-                          key={movie.id}
-                        >
-                          <Card key={movie.id}>
-                            <CardFront
+                    {nowMovies?.results.slice(0, 6).map((movie: Iresults) => (
+                      <Link
+                        to={`/now-playing-movies/${movie.id}`}
+                        key={movie.id}
+                      >
+                        <Card key={movie.id}>
+                          <CardFront
+                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                          ></CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {movie.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
                               bgPhoto={makeImageFormat(
-                                movie.poster_path,
+                                movie.backdrop_path,
                                 "w500"
                               )}
-                            ></CardFront>
-                            <CardBack>
-                              <MoviesAdult>
-                                {movie.adult ? "Adult" : "Not an adult"}
-                              </MoviesAdult>
-                              <MoviesImg
-                                bgPhoto={makeImageFormat(
-                                  movie.backdrop_path,
-                                  "w500"
-                                )}
-                              ></MoviesImg>
-                              <MoviesTitle>
-                                {movie.title.length >= 33
-                                  ? `${movie.title.slice(0, 33)}...`
-                                  : movie.title}
-                              </MoviesTitle>
-                              <MoviesOverview>
-                                {movie.overview.length >= 122
-                                  ? `${movie.overview.slice(0, 122)}...`
-                                  : movie.overview}
-                              </MoviesOverview>
-                              <EtcBox>
-                                <Popularity>
-                                  <span>Popularity: </span>
-                                  {movie.popularity}
-                                </Popularity>
-                                <Vote>
-                                  <span>Vote Average: </span>
-                                  {movie.vote_average}
-                                </Vote>
-                              </EtcBox>
-                            </CardBack>
-                          </Card>
-                        </Link>
-                      ))}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {movie.title.length >= 33
+                                ? `${movie.title.slice(0, 33)}...`
+                                : movie.title}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {movie.overview.length >= 122
+                                ? `${movie.overview.slice(0, 122)}...`
+                                : movie.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {movie.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {movie.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
                   </CardBox>
                 </SlideWrapper>
               )}
@@ -593,54 +530,46 @@ const Home = () => {
               ) : (
                 <SlideWrapper>
                   <CardBox>
-                    {topMovies?.results
-                      .slice(topIndex * offset, topIndex * offset + offset)
-                      .map((movie: Iresults) => (
-                        <Link
-                          to={`/top-rated-movies/${movie.id}`}
-                          key={movie.id}
-                        >
-                          <Card>
-                            <CardFront
+                    {topMovies?.results.slice(0, 6).map((movie: Iresults) => (
+                      <Link to={`/top-rated-movies/${movie.id}`} key={movie.id}>
+                        <Card>
+                          <CardFront
+                            bgPhoto={makeImageFormat(movie.poster_path, "w500")}
+                          ></CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {movie.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
                               bgPhoto={makeImageFormat(
-                                movie.poster_path,
+                                movie.backdrop_path,
                                 "w500"
                               )}
-                            ></CardFront>
-                            <CardBack>
-                              <MoviesAdult>
-                                {movie.adult ? "Adult" : "Not an adult"}
-                              </MoviesAdult>
-                              <MoviesImg
-                                bgPhoto={makeImageFormat(
-                                  movie.backdrop_path,
-                                  "w500"
-                                )}
-                              ></MoviesImg>
-                              <MoviesTitle>
-                                {movie.title.length >= 33
-                                  ? `${movie.title.slice(0, 33)}...`
-                                  : movie.title}
-                              </MoviesTitle>
-                              <MoviesOverview>
-                                {movie.overview.length >= 122
-                                  ? `${movie.overview.slice(0, 122)}...`
-                                  : movie.overview}
-                              </MoviesOverview>
-                              <EtcBox>
-                                <Popularity>
-                                  <span>Popularity: </span>
-                                  {movie.popularity}
-                                </Popularity>
-                                <Vote>
-                                  <span>Vote Average: </span>
-                                  {movie.vote_average}
-                                </Vote>
-                              </EtcBox>
-                            </CardBack>
-                          </Card>
-                        </Link>
-                      ))}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {movie.title.length >= 33
+                                ? `${movie.title.slice(0, 33)}...`
+                                : movie.title}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {movie.overview.length >= 122
+                                ? `${movie.overview.slice(0, 122)}...`
+                                : movie.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {movie.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {movie.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
                   </CardBox>
                 </SlideWrapper>
               )}
@@ -654,48 +583,99 @@ const Home = () => {
               ) : (
                 <SlideWrapper>
                   <CardBox>
-                    {topTVData?.results
-                      .slice(offset * topIndex, offset * topIndex + offset)
-                      .map((tv: ITvResults) => (
-                        <Link to={`${tv.id}`} key={tv.id}>
-                          <Card key={tv.id}>
-                            <CardFront
-                              bgPhoto={makeImageFormat(tv.poster_path, "w500")}
-                            ></CardFront>
-                            <CardBack>
-                              <MoviesAdult>
-                                {tv.adult ? "Adult" : "Not an adult"}
-                              </MoviesAdult>
-                              <MoviesImg
-                                bgPhoto={makeImageFormat(
-                                  tv.backdrop_path,
-                                  "w500"
-                                )}
-                              ></MoviesImg>
-                              <MoviesTitle>
-                                {tv.name.length >= 33
-                                  ? `${tv.name.slice(0, 33)}...`
-                                  : tv.name}
-                              </MoviesTitle>
-                              <MoviesOverview>
-                                {tv.overview.length >= 122
-                                  ? `${tv.overview.slice(0, 122)}...`
-                                  : tv.overview}
-                              </MoviesOverview>
-                              <EtcBox>
-                                <Popularity>
-                                  <span>Popularity: </span>
-                                  {tv.popularity}
-                                </Popularity>
-                                <Vote>
-                                  <span>Vote Average: </span>
-                                  {tv.vote_average}
-                                </Vote>
-                              </EtcBox>
-                            </CardBack>
-                          </Card>
-                        </Link>
-                      ))}
+                    {topTVData?.results.slice(0, 6).map((tv: ITvResults) => (
+                      <Link to={`${tv.id}`} key={tv.id}>
+                        <Card key={tv.id}>
+                          <CardFront
+                            bgPhoto={makeImageFormat(tv.poster_path, "w500")}
+                          ></CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {tv.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
+                              bgPhoto={makeImageFormat(
+                                tv.backdrop_path,
+                                "w500"
+                              )}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {tv.name.length >= 33
+                                ? `${tv.name.slice(0, 33)}...`
+                                : tv.name}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {tv.overview.length >= 122
+                                ? `${tv.overview.slice(0, 122)}...`
+                                : tv.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {tv.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {tv.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
+                  </CardBox>
+                </SlideWrapper>
+              )}
+            </>
+            <>
+              {popTVLoading ? (
+                <SlideWrapper>
+                  <ContentsTitle>Popular TV</ContentsTitle>
+                  <IsLoading>Loading...</IsLoading>
+                </SlideWrapper>
+              ) : (
+                <SlideWrapper>
+                  <CardBox>
+                    {popTVData?.results.slice(0, 6).map((tv: ITvResults) => (
+                      <Link to={`${tv.id}`} key={tv.id}>
+                        <Card key={tv.id}>
+                          <CardFront
+                            bgPhoto={makeImageFormat(tv.poster_path, "w500")}
+                          ></CardFront>
+                          <CardBack>
+                            <MoviesAdult>
+                              {tv.adult ? "Adult" : "Not an adult"}
+                            </MoviesAdult>
+                            <MoviesImg
+                              bgPhoto={makeImageFormat(
+                                tv.backdrop_path,
+                                "w500"
+                              )}
+                            ></MoviesImg>
+                            <MoviesTitle>
+                              {tv.name.length >= 33
+                                ? `${tv.name.slice(0, 33)}...`
+                                : tv.name}
+                            </MoviesTitle>
+                            <MoviesOverview>
+                              {tv.overview.length >= 122
+                                ? `${tv.overview.slice(0, 122)}...`
+                                : tv.overview}
+                            </MoviesOverview>
+                            <EtcBox>
+                              <Popularity>
+                                <span>Popularity: </span>
+                                {tv.popularity}
+                              </Popularity>
+                              <Vote>
+                                <span>Vote Average: </span>
+                                {tv.vote_average}
+                              </Vote>
+                            </EtcBox>
+                          </CardBack>
+                        </Card>
+                      </Link>
+                    ))}
                   </CardBox>
                 </SlideWrapper>
               )}

@@ -4,6 +4,7 @@ import session from "express-session";
 import { localsMiddlewaer } from "./middleware";
 import MongoStore from "connect-mongo";
 import apiRouter from "./router/apiRouter";
+import * as path from "path";
 
 const app = express();
 
@@ -24,7 +25,12 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(localsMiddlewaer);
 
 app.use("/uploads", express.static("uploads"));
+app.use(express.static(path.join(__dirname, "../client/build")));
 
 app.use("/api", apiRouter);
+
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
 
 export default app;

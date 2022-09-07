@@ -1,5 +1,5 @@
 import User from "../models/User";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export const join = async (req, res) => {
   const {

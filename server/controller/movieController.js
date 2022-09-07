@@ -1,7 +1,7 @@
 import fetch from "cross-fetch";
-import Movie from "../../models/Movie";
-import User from "../../models/User";
-import Comment from "../../models/Comment";
+import Movie from "../models/Movie";
+import User from "../models/User";
+import Comment from "../models/Comment";
 
 export const home = async (req, res) => {
   const movies = await Movie.find({})

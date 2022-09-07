@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { IdetailMovie, IUserMovies, userMovies } from "../api";
+
+import { IUserMovies, userMovies } from "../api";
 import { makeImageFormat } from "../until";
 import Header from "./Header";
-import { useForm } from "react-hook-form";
 import { IUser } from "../atom";
 import ErrorMsg from "./ErrorMsg";
 const Wrapper = styled.div`
@@ -593,7 +593,6 @@ const Detail = (props: any) => {
   >(["watch", "userMovies"], userMovies);
   const [another, setAnother] = useState<IUserMovies[]>();
   const [anotherLength, setALength] = useState(0);
-  const { register, setValue, handleSubmit } = useForm<IForm>();
   let navigator = useNavigate();
 
   useEffect(() => {
@@ -605,7 +604,11 @@ const Detail = (props: any) => {
     setUser(loggedInUser);
   }, [movieId]);
 
-  const onSubmit = async ({ comment }: IForm) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const {
+      currentTarget: { comment },
+    } = event;
     const response = await fetch(`http://localhost:5000/api/comments`, {
       method: "post",
       headers: {
@@ -620,7 +623,7 @@ const Detail = (props: any) => {
     const data = await response.json();
     if (response.status === 200) {
       console.log(data);
-      setValue("comment", "");
+      event.currentTarget.value = "";
     } else if (response.status === 400) {
       console.log(data);
     }
@@ -1060,7 +1063,7 @@ const Detail = (props: any) => {
               </CommentTitle>
               {isLoggedIn && (
                 <CommentsFormWrap>
-                  <CommentForm onSubmit={handleSubmit(onSubmit)}>
+                  <CommentForm onSubmit={onSubmit}>
                     {user?.avatarUrl ? (
                       <User
                         avatarUrl={"http://localhost:5000/" + user?.avatarUrl}
@@ -1074,7 +1077,6 @@ const Detail = (props: any) => {
                       </Icon>
                     )}
                     <CommentInput
-                      {...register("comment")}
                       name="comment"
                       type="text"
                       placeholder="write a comment..."

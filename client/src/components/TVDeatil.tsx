@@ -13,7 +13,6 @@ import {
 } from "../api";
 import { makeImageFormat } from "../until";
 import Header from "./Header";
-import { useForm } from "react-hook-form";
 import { IUser } from "../atom";
 import ErrorMsg from "./ErrorMsg";
 

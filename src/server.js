@@ -25,12 +25,12 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(localsMiddlewaer);
 
 app.use("/uploads", express.static("uploads"));
-app.use(express.static(path.join(__dirname, "/client/build")));
+app.use(express.static(path.join(__dirname, "/assets/build")));
 
 app.use("/api", apiRouter);
 
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "/client/build/index.html"));
+  res.sendFile(path.join(__dirname, "/assets/build/index.html"));
 });
 
 export default app;

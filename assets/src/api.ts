@@ -1,7 +1,6 @@
 import { response } from "express";
 
 const LOCALBASEURL = "http://localhost:5000/api";
-const APIKEY = process.env.REACT_APP_API_KEY;
 const APIBASEURL = "https://api.themoviedb.org/3";
 
 export interface IUserMovies {

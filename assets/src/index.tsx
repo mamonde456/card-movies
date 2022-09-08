@@ -11,13 +11,14 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  // <BrowserRouter>
-  <React.StrictMode>
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </RecoilRoot>
-  </React.StrictMode>
-  // </BrowserRouter>
+  <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <React.StrictMode>
+      <RecoilRoot>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </RecoilRoot>
+    </React.StrictMode>
+    //{" "}
+  </BrowserRouter>
 );

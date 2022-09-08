@@ -1,6 +1,7 @@
 import { response } from "express";
 
 const LOCALBASEURL = "http://localhost:5000/api";
+const APIKEY = process.env.REACT_APP_API_KEY;
 const APIBASEURL = "https://api.themoviedb.org/3";
 
 export interface IUserMovies {
@@ -274,72 +275,72 @@ export interface IVideos {
 }
 
 export function popularMovies() {
-  return fetch(
-    `${APIBASEURL}/movie/popular?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/popular?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function latestMovies() {
-  return fetch(
-    `${APIBASEURL}/movie/latest?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/latest?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function upcomingMovies() {
-  return fetch(
-    `${APIBASEURL}/movie/upcoming?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/upcoming?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function nowPlayingMovies() {
-  return fetch(
-    `${APIBASEURL}/movie/now_playing?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/now_playing?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function topRatedMovies() {
-  return fetch(
-    `${APIBASEURL}/movie/top_rated?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/top_rated?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function detailMovie(movieId: string) {
-  return fetch(
-    `${APIBASEURL}/movie/${movieId}?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/${movieId}?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function getVideos(movieId: string) {
-  return fetch(
-    `${APIBASEURL}/movie/${movieId}/videos?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/movie/${movieId}/videos?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function genresData() {
-  return fetch(
-    `${APIBASEURL}/genre/list?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/genre/list?api_key=${APIKEY}`).then((response) =>
+    response.json()
+  );
 }
 
 //tv api
 
 export function tvTop() {
-  return fetch(
-    `${APIBASEURL}/tv/top_rated?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/tv/top_rated?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function tvPopular() {
-  return fetch(
-    `${APIBASEURL}/tv/popular?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/tv/popular?api_key=${APIKEY}`).then((response) =>
+    response.json()
+  );
 }
 export function tvOnAir() {
-  return fetch(
-    `${APIBASEURL}/tv/on_the_air?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/tv/on_the_air?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function tvAirToday() {
-  return fetch(
-    `${APIBASEURL}/tv/airing_today?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/tv/airing_today?api_key=${APIKEY}`).then(
+    (response) => response.json()
+  );
 }
 export function tvDetail(tvId: string) {
-  return fetch(
-    `${APIBASEURL}/tv/${tvId}?api_key=7ddf9cba8020cc2542ed7ffeaa0c1787`
-  ).then((response) => response.json());
+  return fetch(`${APIBASEURL}/tv/${tvId}?api_key=${APIKEY}`).then((response) =>
+    response.json()
+  );
 }
 
 //users

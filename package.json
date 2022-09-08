@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node build/init.js",
+    "build": "npm run build:server && npm run build:client",
     "build:server": "babel src -d build",
+    "build:client": "cd assets && npm build",
     "server": "nodemon --exec babel-node src/init.js ",
     "client": "cd assets && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\""

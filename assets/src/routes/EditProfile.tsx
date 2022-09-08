@@ -1,10 +1,8 @@
-import { response } from "express";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { IUser, loggedInUser } from "../atom";
+import { IUser } from "../atom";
 import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 

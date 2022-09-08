@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import styled, { CSSProperties } from "styled-components";
-import { editMovieData, IdetailMovie, watchData } from "../api";
-import { atomMovieDB, categoryList, IGenres } from "../atom";
+import styled from "styled-components";
+import { watchData } from "../api";
+import { categoryList } from "../atom";
 import ErrorMsg from "../components/ErrorMsg";
 import Header from "../components/Header";
 

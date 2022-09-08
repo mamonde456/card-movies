@@ -12,6 +12,7 @@
     "build": "npm run build:server && npm run build:client",
     "build:server": "babel src -d build",
     "build:client": "cd assets && npm run build",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix assets && npm run build --prefix assets",
     "server": "nodemon --exec babel-node src/init.js ",
     "client": "cd assets && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\""
